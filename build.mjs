@@ -109,9 +109,17 @@ essay = essay.replace(/<p>([\s\S]*?)<\/p>/g, (_, para) => {
 html = essay + references;
 
 // The first paragraph after the title is the subtitle; the next is the byline.
+// The authors are shuffled on each page load, inline so the order is set
+// before first paint.
+const shuffleAuthors = `<script>(() => {
+  const s = document.currentScript.previousElementSibling.querySelector('.authors');
+  const a = [...s.querySelectorAll('a')];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  s.replaceChildren(...a.flatMap((el, i) => (i ? [', ', el] : [el])));
+})();</script>`;
 html = html.replace(
   /<h1>(.*?)<\/h1>\s*<p>(.*?)<\/p>\s*<p>(.*?)<\/p>\s*<p>/s,
-  `<header><h1>$1</h1><p class="subtitle">$2</p><p class="byline">$3 · ${minutes} min read</p></header>\n<p class="lede">`
+  `<header><h1>$1</h1><p class="subtitle">$2</p><p class="byline"><span class="authors">$3</span> · ${minutes} min read</p>${shuffleAuthors}</header>\n<p class="lede">`
 );
 
 const toc = sections
