@@ -32,7 +32,7 @@ html = html.replace(/>([^<]+)</g, (_, text) =>
 html = html.replace(/<(h[1-6])>\s*<strong>(.*?)<\/strong>\s*<\/\1>/g, '<$1>$2</$1>');
 
 // An image followed by an italic source URL becomes a figure with a credit.
-// Alt text lives in site/figures.json, keyed by the image name in the export.
+// Captions and alt text live in site/figures.json, keyed by the image name in the export.
 const figures = JSON.parse(await readFile('site/figures.json', 'utf8'));
 const imageSizes = Object.fromEntries(await Promise.all(
   Object.entries(images).map(async ([name, img]) => [name, await img.clone().metadata()])
@@ -43,10 +43,12 @@ html = html.replace(
     const { width, height } = imageSizes[name];
     const alt = (figures[name]?.alt ?? '').replace(/"/g, '&quot;');
     const url = source && stripTags(source).trim();
+    const caption = figures[name]?.caption ?? '';
     const credit = url
-      ? `<figcaption>Source: <a href="${url}">${new URL(url).hostname.replace(/^(www|en)\./, '')}</a></figcaption>`
+      ? `<span class="credit">Source: <a href="${url}">${new URL(url).hostname.replace(/^(www|en)\./, '')}</a></span>`
       : '';
-    return `<figure><img src="images/${name}.webp" alt="${alt}" width="${width}" height="${height}" loading="lazy" decoding="async">${credit}</figure>`;
+    const figcaption = caption || credit ? `<figcaption>${[caption, credit].filter(Boolean).join(' ')}</figcaption>` : '';
+    return `<figure><img src="images/${name}.webp" alt="${alt}" width="${width}" height="${height}" loading="lazy" decoding="async">${figcaption}</figure>`;
   }
 );
 
@@ -69,7 +71,7 @@ html = html.replace(/<h2>(.*?)<\/h2>/g, (_, text) => {
 
 let [essay, references = ''] = html.split(/(?=<h2 id="references">)/);
 
-const words = stripTags(essay).split(/\s+/).filter(Boolean).length;
+const words = stripTags(essay.replace(/<figcaption>[\s\S]*?<\/figcaption>/g, '')).split(/\s+/).filter(Boolean).length;
 const minutes = Math.round(words / 230);
 
 // Give each reference an id to land on, and build a short form of it

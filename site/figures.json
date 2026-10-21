@@ -1,8 +1,10 @@
 {
   "image1": {
+    "caption": "Skeuomorphism in early iOS: Notes on a yellow legal pad, Newsstand as a wooden bookshelf, Voice Memos as a studio microphone.",
     "alt": "Three iPhones showing skeuomorphic iOS apps: Notes on yellow legal paper, Newsstand as a wooden bookshelf, and Voice Memos as a chrome studio microphone with a VU meter."
   },
   "image2": {
+    "caption": "The ark of studies, as engraved in Vincent Placcius’s <i>De arte excerpendi</i> (1689).",
     "alt": "Engraving of Placcius’s ark of studies: an open cabinet with rows of hooks and labelled slips of paper behind its doors, and drawers below."
   }
 }

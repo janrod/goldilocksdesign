@@ -277,10 +277,13 @@ figure img {
   background: var(--callout);
 }
 figcaption {
-  margin-top: 0.6rem;
-  font-size: 0.75rem;
+  margin-top: 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
   color: var(--muted);
+  text-wrap: pretty;
 }
+figcaption .credit { white-space: nowrap; }
 
 /* Lists in the essay */
 article > ul {
