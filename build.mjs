@@ -174,7 +174,7 @@ const shuffleAuthors = `<script>(() => {
 })();</script>`;
 html = html.replace(
   /<h1>(.*?)<\/h1>\s*<p>(.*?)<\/p>\s*<p>(.*?)<\/p>\s*<p>/s,
-  `<header><p class="kicker">Inaugural essay</p><h1>$1</h1><p class="subtitle">$2</p><p class="byline"><span class="authors">$3</span> · ${minutes} min read</p>${shuffleAuthors}</header>\n<p class="lede">`
+  `<header><h1>$1</h1><p class="subtitle">$2</p><p class="byline"><span class="authors">$3</span> · ${minutes} min read</p>${shuffleAuthors}</header>\n<p class="lede">`
 );
 
 const toc = sections
