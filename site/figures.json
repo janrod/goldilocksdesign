@@ -15,10 +15,6 @@
     "credit": "Photo: <a href=\"https://www.flickr.com/photos/103707855@N05/16453502195/\">J R</a>, <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC BY 2.0</a>, via <a href=\"https://commons.wikimedia.org/wiki/File:Desktop_icons_for_Xerox_Star_8010.jpg\">Wikimedia Commons</a>",
     "alt": "Black-and-white screen of the Xerox Star desktop: icons for folders, documents, an appointment book, printers, and in- and out-baskets on a dotted background."
   },
-  "image1": {
-    "caption": "Skeuomorphism in early iOS: Notes on a yellow legal pad, Newsstand as a wooden bookshelf, Voice Memos as a studio microphone.",
-    "alt": "Three iPhones showing skeuomorphic iOS apps: Notes on yellow legal paper, Newsstand as a wooden bookshelf, and Voice Memos as a chrome studio microphone with a VU meter."
-  },
   "shrdlu": {
     "src": "images/shrdlu-blocks-world.webp",
     "near": "Winograd had built SHRDLU",
