@@ -133,7 +133,7 @@ How much friction is enough? Mihaly Csikszentmihalyi’s work on flow \[5\] offe
 
 An LLM designed without a persona might therefore feel quite alien at first, which could turn out to be a feature. We may need to invent an interaction language for something that has never existed before – language without a speaker. Graphical computing eventually developed gestures, windows, menus and hyperlinks that had no exact counterpart in the physical world. What kinds of computing have we failed to invent because we keep insisting that intelligence must have a face, a voice, and an “I”?
 
-Perhaps that is the real opportunity. We have spent the first years of generative AI teaching machines how to occupy a familiar role in our world. The next phase should be about discovering forms of interaction that have no human equivalent at all. While the one role that matters, the author, stays with us.
+Perhaps that is the real opportunity. We have spent the first years of generative AI teaching machines how to occupy a familiar role in our world. The next phase should be about discovering forms of interaction that have no human equivalent at all, while the one role that matters, the author, stays with us.
 
 **AI use statement**
 
