@@ -36,12 +36,12 @@
     "credit": "*GC6.P6904.689d, <a href=\"https://nrs.harvard.edu/urn-3:FHCL.HOUGH:10482607\">Houghton Library, Harvard University</a>, public domain",
     "alt": "Close-up of the engraving: vertical rails with rows of hooks under the letters F to M, with paper slips hanging from some of them."
   },
-  "kc135-checklist": {
-    "src": "images/kc135-checklist.webp",
+  "apollo9-checklist": {
+    "src": "images/apollo9-checklist.webp",
     "near": "Cockpit checklists work the same way",
     "place": "after",
-    "caption": "Co-pilot Captain Trent Parker reads the pre-flight checklist before a KC-135 air-refuelling mission, 2014.",
-    "credit": "U.S. Air Force photo by Staff Sgt. Vernon Young Jr., public domain, via <a href=\"https://commons.wikimedia.org/wiki/File:Running_the_checklist_(14729226029).jpg\">Wikimedia Commons</a>",
-    "alt": "A pilot in a dim cockpit, lit by red light, reads a checklist on his lap among glowing instruments."
+    "caption": "Two pages from the Apollo 9 lunar module checklist, flown and signed by the crew in 1969. The superseded procedure is crossed out, and under “Report battery voltage to MSFN” the readings are written in by hand.",
+    "credit": "NASA; photo: <a href=\"https://www.flickr.com/photos/49487266@N07/46380890834/\">San Diego Air &amp; Space Museum Archives</a>, no known copyright restrictions, via <a href=\"https://commons.wikimedia.org/wiki/File:Apollo_9_lunar_module_checklist_-_46380890834.jpg\">Wikimedia Commons</a>",
+    "alt": "Open ring binder of typed checklist pages. The left page, Ascent Battery Activation and Checkout, is crossed out with a large X. On the right, the revised steps end with handwritten battery readings, 36.8 and 37.5, and the note “Busses 29.0 VDC on asc batts.”"
   }
 }
