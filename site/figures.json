@@ -25,7 +25,7 @@
   },
   "image2": {
     "caption": "The ark of studies, as engraved in Vincent Placcius’s <i>De arte excerpendi</i> (1689) [29].",
-    "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">Houghton Library, Harvard University</a>, public domain",
+    "credit": "*GC6.P6904.689d, <a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">Houghton Library, Harvard University</a>, public domain",
     "alt": "Engraving of Placcius’s ark of studies: an open cabinet with rows of hooks and labelled slips of paper behind its doors, and drawers below."
   },
   "placcius-slips": {
@@ -33,8 +33,8 @@
     "near": "The machine stays an instrument",
     "place": "after",
     "caption": "Detail of the ark: excerpt slips hang from hooks under lettered headings [29].",
-    "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">Houghton Library, Harvard University</a>, public domain",
-    "alt": "Close-up of the engraving: vertical rails with rows of hooks under the letters G, H, I, L and M, with paper slips hanging from some of them."
+    "credit": "*GC6.P6904.689d, <a href=\"https://nrs.harvard.edu/urn-3:FHCL.HOUGH:10482607\">Houghton Library, Harvard University</a>, public domain",
+    "alt": "Close-up of the engraving: vertical rails with rows of hooks under the letters F to M, with paper slips hanging from some of them."
   },
   "kc135-checklist": {
     "src": "images/kc135-checklist.webp",
