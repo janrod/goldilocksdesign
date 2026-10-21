@@ -283,7 +283,11 @@ figcaption {
   color: var(--muted);
   text-wrap: pretty;
 }
-figcaption .credit { white-space: nowrap; }
+figcaption .credit {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.85em;
+}
 
 /* Lists in the essay */
 article > ul {

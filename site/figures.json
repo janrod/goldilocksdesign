@@ -1,10 +1,51 @@
 {
+  "heider-simmel": {
+    "src": "images/heider-simmel-1944.webp",
+    "near": "geometric shapes moving across a screen",
+    "place": "after",
+    "caption": "A frame from Fritz Heider and Marianne Simmel’s 1944 film. Asked what they saw, nearly all viewers described the triangles and the circle as characters with motives [14].",
+    "credit": "Film: Heider and Simmel, 1944, via <a href=\"https://archive.org/details/heider-simmel\">Internet Archive</a>",
+    "alt": "Grainy film frame: a large triangle, a small triangle and a small circle beside a box with a hinged door, drawn in dark lines on white."
+  },
+  "xerox-star": {
+    "src": "images/xerox-star-desktop.webp",
+    "near": "The Xerox Star presented computing",
+    "place": "before",
+    "caption": "The Xerox Star 8010 desktop (1981): documents, folders, printers, and in- and out-baskets [35].",
+    "credit": "Photo: <a href=\"https://www.flickr.com/photos/103707855@N05/16453502195/\">J R</a>, <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC BY 2.0</a>, via <a href=\"https://commons.wikimedia.org/wiki/File:Desktop_icons_for_Xerox_Star_8010.jpg\">Wikimedia Commons</a>",
+    "alt": "Black-and-white screen of the Xerox Star desktop: icons for folders, documents, an appointment book, printers, and in- and out-baskets on a dotted background."
+  },
   "image1": {
     "caption": "Skeuomorphism in early iOS: Notes on a yellow legal pad, Newsstand as a wooden bookshelf, Voice Memos as a studio microphone.",
     "alt": "Three iPhones showing skeuomorphic iOS apps: Notes on yellow legal paper, Newsstand as a wooden bookshelf, and Voice Memos as a chrome studio microphone with a VU meter."
   },
+  "shrdlu": {
+    "src": "images/shrdlu-blocks-world.webp",
+    "near": "Winograd had built SHRDLU",
+    "place": "after",
+    "caption": "SHRDLU’s blocks world at the command “Pick up a big red block,” from Winograd’s 1971 MIT report.",
+    "credit": "Terry Winograd, <i>Procedures as a Representation for Data in a Computer Program for Understanding Natural Language</i>, MIT AI Technical Report 235, 1971, fig. 4, via <a href=\"https://archive.org/details/DTIC_AD0721399\">DTIC / Internet Archive</a>",
+    "alt": "Line drawing of a table with blocks, pyramids and an open box, labelled red, green and blue, with a robot hand hanging above. Handwritten above: “Pick up a big red block.”"
+  },
   "image2": {
-    "caption": "The ark of studies, as engraved in Vincent Placcius’s <i>De arte excerpendi</i> (1689).",
+    "caption": "The ark of studies, as engraved in Vincent Placcius’s <i>De arte excerpendi</i> (1689) [29].",
+    "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">Houghton Library, Harvard University</a>, public domain",
     "alt": "Engraving of Placcius’s ark of studies: an open cabinet with rows of hooks and labelled slips of paper behind its doors, and drawers below."
+  },
+  "placcius-slips": {
+    "src": "images/placcius-slips.webp",
+    "near": "The machine stays an instrument",
+    "place": "after",
+    "caption": "Detail of the ark: excerpt slips hang from hooks under lettered headings [29].",
+    "credit": "<a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">Houghton Library, Harvard University</a>, public domain",
+    "alt": "Close-up of the engraving: vertical rails with rows of hooks under the letters G, H, I, L and M, with paper slips hanging from some of them."
+  },
+  "kc135-checklist": {
+    "src": "images/kc135-checklist.webp",
+    "near": "Cockpit checklists work the same way",
+    "place": "after",
+    "caption": "Co-pilot Captain Trent Parker reads the pre-flight checklist before a KC-135 air-refuelling mission, 2014.",
+    "credit": "U.S. Air Force photo by Staff Sgt. Vernon Young Jr., public domain, via <a href=\"https://commons.wikimedia.org/wiki/File:Running_the_checklist_(14729226029).jpg\">Wikimedia Commons</a>",
+    "alt": "A pilot in a dim cockpit, lit by red light, reads a checklist on his lap among glowing instruments."
   }
 }

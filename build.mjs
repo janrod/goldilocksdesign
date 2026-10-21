@@ -31,24 +31,31 @@ html = html.replace(/>([^<]+)</g, (_, text) =>
 // Headings are bolded in the source; let CSS handle their weight.
 html = html.replace(/<(h[1-6])>\s*<strong>(.*?)<\/strong>\s*<\/\1>/g, '<$1>$2</$1>');
 
-// An image followed by an italic source URL becomes a figure with a credit.
-// Captions and alt text live in site/figures.json, keyed by the image name in the export.
+// Figures. Captions, credits and alt text live in site/figures.json. Entries
+// named like the export's images (image1, image2) describe those; entries with
+// a `src` are extra images from public/images, placed next to the paragraph
+// containing `near`. Citations like [14] in captions link to the references.
 const figures = JSON.parse(await readFile('site/figures.json', 'utf8'));
+const linkCites = (s) => s.replace(/\[(\d+(?:,\s*\d+)*)\]/g, (_, nums) =>
+  '<span class="cite">[' +
+  nums.split(/,\s*/).map((n) => `<a href="#ref-${n}" data-ref="${n}">${n}</a>`).join(', ') +
+  ']</span>'
+);
+function figureHtml(src, { width, height }, { alt = '', caption = '', credit = '' }) {
+  const parts = [caption && linkCites(caption), credit && `<span class="credit">${linkCites(credit)}</span>`].filter(Boolean);
+  return `<figure><img src="${src}" alt="${alt.replace(/"/g, '&quot;')}" width="${width}" height="${height}" loading="lazy" decoding="async">` +
+    (parts.length ? `<figcaption>${parts.join(' ')}</figcaption>` : '') + '</figure>';
+}
 const imageSizes = Object.fromEntries(await Promise.all(
   Object.entries(images).map(async ([name, img]) => [name, await img.clone().metadata()])
 ));
 html = html.replace(
   /<p><img src="images\/(image\d+)\.webp" alt="">(?:<br>)?\s*(?:<em>([\s\S]*?)<\/em>)?<\/p>/g,
   (_, name, source) => {
-    const { width, height } = imageSizes[name];
-    const alt = (figures[name]?.alt ?? '').replace(/"/g, '&quot;');
     const url = source && stripTags(source).trim();
-    const caption = figures[name]?.caption ?? '';
-    const credit = url
-      ? `<span class="credit">Source: <a href="${url}">${new URL(url).hostname.replace(/^(www|en)\./, '')}</a></span>`
-      : '';
-    const figcaption = caption || credit ? `<figcaption>${[caption, credit].filter(Boolean).join(' ')}</figcaption>` : '';
-    return `<figure><img src="images/${name}.webp" alt="${alt}" width="${width}" height="${height}" loading="lazy" decoding="async">${figcaption}</figure>`;
+    const credit = figures[name]?.credit ??
+      (url ? `Source: <a href="${url}">${new URL(url).hostname.replace(/^(www|en)\./, '')}</a>` : '');
+    return figureHtml(`images/${name}.webp`, imageSizes[name], { ...figures[name], credit });
   }
 );
 
@@ -110,18 +117,29 @@ function shortRef(body) {
   return `${who} ${year}, ${titleHtml}`;
 }
 
+// Place a block before or after the first paragraph containing `near`.
+function placeNear({ near, place }, block, what) {
+  let found = false;
+  essay = essay.replace(/<p>[\s\S]*?<\/p>\n?/g, (p) => {
+    if (found || !p.includes(near)) return p;
+    found = true;
+    return place === 'after' ? p + block : block + p;
+  });
+  if (!found) throw new Error(`${what} anchor not found: "${near}"`);
+}
+
+// Extra figures from public/images.
+for (const [name, fig] of Object.entries(figures)) {
+  if (!fig.src) continue;
+  const size = await sharp(`public/${fig.src}`).metadata();
+  placeNear(fig, figureHtml(fig.src, size, fig) + '\n', `Figure ${name}`);
+}
+
 // Pull quotes: display copies of lines from the essay, placed before or after
 // the paragraph containing `near`. The essay text itself is untouched.
 const pullquotes = JSON.parse(await readFile('site/pullquotes.json', 'utf8'));
 for (const q of pullquotes) {
-  const aside = `<aside class="pullquote" aria-hidden="true"><p>${q.text}</p></aside>\n`;
-  let found = false;
-  essay = essay.replace(/<p>[\s\S]*?<\/p>\n?/g, (p) => {
-    if (found || !p.includes(q.near)) return p;
-    found = true;
-    return q.place === 'after' ? p + aside : aside + p;
-  });
-  if (!found) throw new Error(`Pull quote anchor not found: "${q.near}"`);
+  placeNear(q, `<aside class="pullquote" aria-hidden="true"><p>${q.text}</p></aside>\n`, 'Pull quote');
 }
 
 // Link in-text citations like [14] or [25, 30] to the reference list, and
@@ -182,7 +200,7 @@ const page = template
 await rm(OUT_DIR, { recursive: true, force: true });
 await mkdir(OUT_DIR, { recursive: true });
 await cp('public', OUT_DIR, { recursive: true });
-await mkdir(`${OUT_DIR}/images`);
+await mkdir(`${OUT_DIR}/images`, { recursive: true });
 await Promise.all(Object.entries(images).map(([name, img]) => img.toFile(`${OUT_DIR}/images/${name}.webp`)));
 await writeFile(`${OUT_DIR}/index.html`, page);
 console.log(`Built ${OUT_DIR}/index.html (${words} words, ~${minutes} min read, ${refCount} references)`);
