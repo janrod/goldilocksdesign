@@ -15,6 +15,7 @@
   // ---- Reading progress, time left, current section ----
 
   const bar = document.querySelector('.progress-bar');
+  const preamble = document.querySelector('.preamble');
   const pill = document.querySelector('.time-pill');
   const toc = document.querySelector('.toc');
   const tocTime = toc.querySelector('.toc-time');
@@ -32,6 +33,10 @@
     // Finished when the references come into view.
     const f = Math.min(1, Math.max(0, scrollY / (refsHeading.offsetTop - innerHeight)));
     bar.style.transform = `scaleX(${f})`;
+
+    // The preamble fades out over the first stretch of scrolling.
+    const fadeOver = (preamble.offsetTop + preamble.offsetHeight) * 0.6;
+    preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
 
     const label = timeLeft(f);
