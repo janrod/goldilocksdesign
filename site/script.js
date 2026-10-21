@@ -1,0 +1,240 @@
+(() => {
+  const article = document.querySelector('article');
+  const header = article.querySelector('header');
+  const refsHeading = document.getElementById('references');
+  const totalMinutes = Number(article.dataset.minutes);
+  const wide = matchMedia('(min-width: 1100px)');
+  const coarse = matchMedia('(pointer: coarse)');
+
+  let lastPointer = 'mouse';
+  addEventListener('pointerdown', (e) => { lastPointer = e.pointerType; }, true);
+
+  // ---- Reading progress, time left, current section ----
+
+  const bar = document.querySelector('.progress-bar');
+  const pill = document.querySelector('.time-pill');
+  const toc = document.querySelector('.toc');
+  const tocTime = toc.querySelector('.toc-time');
+  const tocLinks = [...toc.querySelectorAll('a')];
+  const headings = tocLinks.map((a) => document.getElementById(a.hash.slice(1)));
+  let pillTimer;
+
+  function timeLeft(f) {
+    if (f <= 0) return `${totalMinutes} min read`;
+    if (f >= 1) return 'Finished';
+    return `${Math.max(1, Math.ceil((1 - f) * totalMinutes))} min left`;
+  }
+
+  function onScroll() {
+    // Finished when the references come into view.
+    const f = Math.min(1, Math.max(0, scrollY / (refsHeading.offsetTop - innerHeight)));
+    bar.style.transform = `scaleX(${f})`;
+
+    const label = timeLeft(f);
+    tocTime.textContent = label;
+    pill.textContent = label;
+    if (f > 0 && f < 1) {
+      pill.classList.add('is-visible');
+      clearTimeout(pillTimer);
+      pillTimer = setTimeout(() => pill.classList.remove('is-visible'), 1400);
+    } else {
+      pill.classList.remove('is-visible');
+    }
+
+    toc.classList.toggle('is-visible', header.getBoundingClientRect().bottom < 0);
+    let current = -1;
+    headings.forEach((h, i) => { if (h.getBoundingClientRect().top < innerHeight * 0.35) current = i; });
+    tocLinks.forEach((a, i) => {
+      if (i === current) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  }
+
+  let ticking = false;
+  const requestUpdate = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { ticking = false; onScroll(); });
+  };
+  addEventListener('scroll', requestUpdate, { passive: true });
+  addEventListener('resize', requestUpdate);
+  onScroll();
+  pill.classList.remove('is-visible');
+
+  // ---- Citation previews ----
+  // Narrow screens: hover (or tap) a citation to see the reference in a card.
+  // Wide screens: the margin note is already visible, so highlight it instead.
+
+  const pop = document.createElement('div');
+  pop.className = 'ref-pop';
+  pop.id = 'ref-pop';
+  pop.setAttribute('role', 'tooltip');
+  pop.hidden = true;
+  document.body.append(pop);
+  let popFor = null;
+  let hideTimer;
+
+  function showPop(a) {
+    const li = document.getElementById(a.hash.slice(1));
+    if (!li) return;
+    clearTimeout(hideTimer);
+    popFor?.removeAttribute('aria-describedby');
+    popFor = a;
+    a.setAttribute('aria-describedby', pop.id);
+    pop.innerHTML = `<span class="ref-pop-num">${a.dataset.ref}</span>${li.innerHTML}` +
+      (lastPointer === 'mouse' ? '' : `<a class="ref-pop-jump" href="${a.hash}">Go to references ↓</a>`);
+    pop.hidden = false;
+
+    const r = a.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const left = Math.max(12, Math.min(r.left + r.width / 2 - pop.offsetWidth / 2, vw - pop.offsetWidth - 12));
+    let top = r.bottom + 8;
+    if (top + pop.offsetHeight > innerHeight - 12 && r.top - pop.offsetHeight - 8 > 12) {
+      top = r.top - pop.offsetHeight - 8;
+    }
+    pop.style.left = `${left + scrollX}px`;
+    pop.style.top = `${top + scrollY}px`;
+  }
+
+  function hidePop() {
+    pop.hidden = true;
+    popFor?.removeAttribute('aria-describedby');
+    popFor = null;
+  }
+  const hideSoon = () => { clearTimeout(hideTimer); hideTimer = setTimeout(hidePop, 180); };
+
+  function setHot(a, on) {
+    a.closest('p')?.querySelectorAll(`.sn[data-ref="${a.dataset.ref}"]`)
+      .forEach((sn) => sn.classList.toggle('is-hot', on));
+  }
+
+  for (const a of article.querySelectorAll('.cite a')) {
+    a.addEventListener('mouseenter', () => {
+      if (lastPointer !== 'mouse') return;
+      if (wide.matches) setHot(a, true);
+      else showPop(a);
+    });
+    a.addEventListener('mouseleave', () => {
+      setHot(a, false);
+      hideSoon();
+    });
+    a.addEventListener('focus', () => { if (!wide.matches) showPop(a); });
+    a.addEventListener('blur', hideSoon);
+    a.addEventListener('click', (e) => {
+      // On touch, the first tap previews; the card links on to the references.
+      if (lastPointer !== 'mouse' && !wide.matches && popFor !== a) {
+        e.preventDefault();
+        showPop(a);
+      } else {
+        hidePop();
+      }
+    });
+  }
+  pop.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  pop.addEventListener('mouseleave', hideSoon);
+  pop.addEventListener('click', (e) => { if (e.target.closest('a')) hidePop(); });
+  document.addEventListener('click', (e) => {
+    if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('.cite')) hidePop();
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePop(); });
+  addEventListener('resize', hidePop);
+
+  // ---- Link to a selected passage (text fragments) ----
+
+  const shareBtn = document.createElement('button');
+  shareBtn.type = 'button';
+  shareBtn.className = 'share-btn';
+  shareBtn.hidden = true;
+  document.body.append(shareBtn);
+  let selectionTimer;
+  let shareUrl = '';
+  let shareText = '';
+  let holdLabelUntil = 0;
+
+  const encode = (s) => encodeURIComponent(s).replace(/-/g, '%2D');
+  const isWordChar = (c) => /[\p{L}\p{N}]/u.test(c || '');
+
+  function fragmentFor(range) {
+    let words = range.toString().replace(/\s+/g, ' ').trim().split(' ');
+    // Text fragments only match whole words, so drop words the selection cuts in half.
+    const { startContainer: sc, startOffset: so, endContainer: ec, endOffset: eo } = range;
+    if (sc.nodeType === 3 && isWordChar(sc.data[so - 1]) && isWordChar(sc.data[so])) words.shift();
+    if (ec.nodeType === 3 && isWordChar(ec.data[eo - 1]) && isWordChar(ec.data[eo])) words.pop();
+    if (words.length < 2) return null;
+    const text = words.join(' ');
+    const frag = words.length <= 8
+      ? encode(text)
+      : `${encode(words.slice(0, 4).join(' '))},${encode(words.slice(-4).join(' '))}`;
+    return { url: `${location.origin}${location.pathname}#:~:text=${frag}`, text };
+  }
+
+  function updateShare() {
+    if (Date.now() < holdLabelUntil) return;
+    const sel = getSelection();
+    if (sel.isCollapsed || !sel.rangeCount || sel.toString().trim().length < 12 ||
+        !article.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+      shareBtn.hidden = true;
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const frag = fragmentFor(range);
+    if (!frag) { shareBtn.hidden = true; return; }
+    ({ url: shareUrl, text: shareText } = frag);
+
+    shareBtn.textContent = coarse.matches && navigator.share ? 'Share link to quote' : 'Copy link to quote';
+    shareBtn.hidden = false;
+    const rects = range.getClientRects();
+    const first = rects[0];
+    const last = rects[rects.length - 1];
+    const vw = document.documentElement.clientWidth;
+    // Above the selection with a mouse; below it on touch, clear of the native menu.
+    const anchor = coarse.matches ? last : first;
+    const top = coarse.matches ? anchor.bottom + 14 : anchor.top - shareBtn.offsetHeight - 10;
+    const left = Math.max(12, Math.min(anchor.left + anchor.width / 2 - shareBtn.offsetWidth / 2, vw - shareBtn.offsetWidth - 12));
+    shareBtn.style.left = `${left + scrollX}px`;
+    shareBtn.style.top = `${Math.max(8, top) + scrollY}px`;
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Older browsers: copy through a temporary textarea, then restore the selection.
+      const sel = getSelection();
+      const saved = sel.rangeCount ? sel.getRangeAt(0) : null;
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.append(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      if (saved) { sel.removeAllRanges(); sel.addRange(saved); }
+      if (!ok) throw new Error('copy failed');
+    }
+  }
+
+  document.addEventListener('selectionchange', () => {
+    clearTimeout(selectionTimer);
+    selectionTimer = setTimeout(updateShare, 200);
+  });
+  shareBtn.addEventListener('pointerdown', (e) => e.preventDefault()); // keep the selection
+  shareBtn.addEventListener('click', async () => {
+    try {
+      if (coarse.matches && navigator.share) {
+        await navigator.share({ url: shareUrl, text: `“${shareText}”` });
+        shareBtn.hidden = true;
+        return;
+      }
+      holdLabelUntil = Date.now() + 1300;
+      await copyText(shareUrl);
+      shareBtn.textContent = 'Link copied';
+    } catch {
+      shareBtn.textContent = 'Couldn’t copy';
+    }
+    setTimeout(() => { shareBtn.hidden = true; }, 1200);
+  });
+
+  // ---- Print ----
+
+  document.querySelector('.print-btn').addEventListener('click', () => print());
+})();

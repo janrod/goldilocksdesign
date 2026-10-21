@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "og": "node og.mjs"
   },
   "dependencies": {
     "marked": "^18.1.1"
