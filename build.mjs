@@ -1,12 +1,21 @@
 // Builds _site/ from the blog post markdown and the files in site/ and public/.
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { marked } from 'marked';
+import sharp from 'sharp';
 
 const SOURCE = 'resources/Who Is Speaking.md';
 const OUT_DIR = '_site';
 const SITE_URL = 'https://goldilocksdesign.com/';
 
 let md = await readFile(SOURCE, 'utf8');
+
+// Google Docs embeds images as base64 reference definitions. Pull them out
+// into compressed image files so the page itself stays light.
+const images = {};
+md = md.replace(/^\[(image\d+)\]: <data:image\/\w+;base64,([^>]+)>$/gm, (_, name, data) => {
+  images[name] = sharp(Buffer.from(data, 'base64')).webp({ quality: 82 });
+  return `[${name}]: images/${name}.webp`;
+});
 
 // The draft is a Google Docs export, which backslash-escapes characters
 // inside URLs. Unescape them so they autolink cleanly.
@@ -22,9 +31,35 @@ html = html.replace(/>([^<]+)</g, (_, text) =>
 // Headings are bolded in the source; let CSS handle their weight.
 html = html.replace(/<(h[1-6])>\s*<strong>(.*?)<\/strong>\s*<\/\1>/g, '<$1>$2</$1>');
 
+// An image followed by an italic source URL becomes a figure with a credit.
+// Alt text lives in site/figures.json, keyed by the image name in the export.
+const figures = JSON.parse(await readFile('site/figures.json', 'utf8'));
+const imageSizes = Object.fromEntries(await Promise.all(
+  Object.entries(images).map(async ([name, img]) => [name, await img.clone().metadata()])
+));
+html = html.replace(
+  /<p><img src="images\/(image\d+)\.webp" alt="">(?:<br>)?\s*(?:<em>([\s\S]*?)<\/em>)?<\/p>/g,
+  (_, name, source) => {
+    const { width, height } = imageSizes[name];
+    const alt = (figures[name]?.alt ?? '').replace(/"/g, '&quot;');
+    const url = source && stripTags(source).trim();
+    const credit = url
+      ? `<figcaption>Source: <a href="${url}">${new URL(url).hostname.replace(/^(www|en)\./, '')}</a></figcaption>`
+      : '';
+    return `<figure><img src="images/${name}.webp" alt="${alt}" width="${width}" height="${height}" loading="lazy" decoding="async">${credit}</figure>`;
+  }
+);
+
+// A paragraph that is only bold text (the AI use statement) is a closing note.
+html = html.replace(
+  /<p><strong>([^<]+)<\/strong><\/p>\s*<p>([\s\S]*?)<\/p>/g,
+  '<section class="endnote"><h3>$1</h3><p>$2</p></section>'
+);
+
 // Pull out the title and give the h2s anchor ids.
-const stripTags = (s) => s.replace(/<[^>]+>/g, '');
+function stripTags(s) { return s.replace(/<[^>]+>/g, ''); }
 const title = stripTags(html.match(/<h1>(.*?)<\/h1>/)[1]);
+const subtitle = stripTags(html.match(/<\/h1>\s*<p>(.*?)<\/p>/)[1]);
 const slug = (s) => stripTags(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const sections = [];
 html = html.replace(/<h2>(.*?)<\/h2>/g, (_, text) => {
@@ -137,6 +172,7 @@ const page = template
   .replace('{{toc}}', () => toc)
   .replace('{{content}}', () => html)
   .replaceAll('{{title}}', title)
+  .replaceAll('{{subtitle}}', subtitle)
   .replaceAll('{{description}}', description)
   .replaceAll('{{url}}', SITE_URL)
   .replaceAll('{{minutes}}', String(minutes));
@@ -144,5 +180,7 @@ const page = template
 await rm(OUT_DIR, { recursive: true, force: true });
 await mkdir(OUT_DIR, { recursive: true });
 await cp('public', OUT_DIR, { recursive: true });
+await mkdir(`${OUT_DIR}/images`);
+await Promise.all(Object.entries(images).map(([name, img]) => img.toFile(`${OUT_DIR}/images/${name}.webp`)));
 await writeFile(`${OUT_DIR}/index.html`, page);
 console.log(`Built ${OUT_DIR}/index.html (${words} words, ~${minutes} min read, ${refCount} references)`);

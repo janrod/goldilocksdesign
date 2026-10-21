@@ -18,5 +18,25 @@
     "text": "Claims nobody committed to, absorbed into the common background and repeated as if someone had meant them — a counterfeit tradition.",
     "near": "counterfeit tradition",
     "place": "before"
+  },
+  {
+    "text": "The LLM is the first one we made pretend to be a person.",
+    "near": "show its work",
+    "place": "after"
+  },
+  {
+    "text": "Who is speaking, who is at stake, and who is the author are one question.",
+    "near": "We can use LLMs to get there",
+    "place": "after"
+  },
+  {
+    "text": "Perhaps the next major movement in LLM interface design is about making machines unmistakably machines.",
+    "near": "Accountability shall run",
+    "place": "before"
+  },
+  {
+    "text": "Matched friction of this kind is where authorship happens; removing it removes the author.",
+    "near": "How much friction is enough",
+    "place": "before"
   }
 ]

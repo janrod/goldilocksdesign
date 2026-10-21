@@ -267,6 +267,45 @@ h2, li { scroll-margin-top: 2rem; }
   color: var(--muted);
 }
 
+/* Figures */
+figure { margin: 2.25rem 0; }
+figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  background: var(--callout);
+}
+figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Lists in the essay */
+article > ul {
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+}
+article > ul li { margin-bottom: 0.6rem; padding-left: 0.25rem; }
+article > ul li::marker { color: var(--muted); }
+
+/* Closing note (AI use statement) */
+.endnote {
+  margin: 3rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.endnote h3 {
+  margin: 0 0 0.4rem;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--text);
+}
+.endnote p { margin: 0; }
+
 /* References */
 #references ~ ol {
   font-size: 0.82rem;
@@ -419,4 +458,5 @@ footer::before {
   h2 { font-size: 14pt; margin-top: 1.75rem; break-after: avoid; }
   p { orphans: 3; widows: 3; }
   #references ~ ol li { break-inside: avoid; }
+  figure { break-inside: avoid; }
 }
