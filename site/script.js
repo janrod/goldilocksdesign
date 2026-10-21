@@ -6,6 +6,9 @@
   const wide = matchMedia('(min-width: 1100px)');
   const coarse = matchMedia('(pointer: coarse)');
 
+  // GoatCounter events (no-op until its script has loaded, and on localhost).
+  const track = (path, title) => window.goatcounter?.count?.({ path, title, event: true });
+
   let lastPointer = 'mouse';
   addEventListener('pointerdown', (e) => { lastPointer = e.pointerType; }, true);
 
@@ -29,6 +32,7 @@
     // Finished when the references come into view.
     const f = Math.min(1, Math.max(0, scrollY / (refsHeading.offsetTop - innerHeight)));
     bar.style.transform = `scaleX(${f})`;
+    trackDepth(f);
 
     const label = timeLeft(f);
     tocTime.textContent = label;
@@ -48,6 +52,17 @@
       if (i === current) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     });
+  }
+
+  // Report how far into the essay each visit gets, once per milestone.
+  const depthsSent = new Set();
+  function trackDepth(f) {
+    for (const pct of [25, 50, 75, 100]) {
+      if (f * 100 >= pct && !depthsSent.has(pct)) {
+        depthsSent.add(pct);
+        track(`read-${pct}`, `Read ${pct}%`);
+      }
+    }
   }
 
   let ticking = false;
@@ -222,12 +237,14 @@
     try {
       if (coarse.matches && navigator.share) {
         await navigator.share({ url: shareUrl, text: `“${shareText}”` });
+        track('quote-shared', 'Shared a quote link');
         shareBtn.hidden = true;
         return;
       }
       holdLabelUntil = Date.now() + 1300;
       await copyText(shareUrl);
       shareBtn.textContent = 'Link copied';
+      track('quote-copied', 'Copied a quote link');
     } catch {
       shareBtn.textContent = 'Couldn’t copy';
     }
@@ -237,4 +254,5 @@
   // ---- Print ----
 
   document.querySelector('.print-btn').addEventListener('click', () => print());
+  addEventListener('beforeprint', () => track('print', 'Printed or saved as PDF'));
 })();

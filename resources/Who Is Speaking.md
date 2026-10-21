@@ -2,7 +2,7 @@
 
 *Designing for LLM world*
 
-[Jan Rod](https://www.linkedin.com/in/rodjan/) (janrod@gmail.com), [Miha Feus](https://www.linkedin.com/in/mihafeus/) (mihafeus@gmail.com)
+[Jan Rod](https://www.linkedin.com/in/rodjan/), [Miha Feus](https://www.linkedin.com/in/mihafeus/)
 
 With the rise of conversational interfaces, we increasingly interact with software within frameworks previously reserved for human-to-human relationships. We say about a chatbot that it "understands," "wants," "remembers," or "cares." People confide in chatbots, grow attached to them, and trust their advice. Humans have long attributed agency and intention to technology. Large Language Models (LLMs – the technology behind the current wave of Artificial Intelligence) add a new degree of reciprocity, are made to remember context, mirror emotion, and can sustain the appearance of a personality over long periods of time. Together, these qualities turn them into what we can call an "anthropomorphistic machine."
 
