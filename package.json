@@ -1,0 +1,11 @@
+{
+  "name": "goldilocksdesign",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "^18.1.1"
+  }
+}
