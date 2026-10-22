@@ -295,6 +295,28 @@ h2, li { scroll-margin-top: 2rem; }
   color: var(--muted);
 }
 
+/* Parallax: the panel drifts a little slower than the page and the quote mark
+   slower still, so the quote reads as a layer beneath the text. --d is set by
+   script.js from 1 (bottom of the viewport) to -1 (top). */
+@media (prefers-reduced-motion: no-preference) {
+  .pullquote {
+    transform: translateY(calc(var(--d, 0) * -16px));
+    will-change: transform;
+  }
+  .pullquote p::before {
+    transform: translateY(calc(var(--d, 0) * -12px));
+  }
+  .js .pullquote p {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .js .pullquote.is-revealed p {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Figures */
 figure { margin: 2.25rem 0; }
 figure img {

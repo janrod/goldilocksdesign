@@ -16,6 +16,8 @@
 
   const bar = document.querySelector('.progress-bar');
   const preamble = document.querySelector('.preamble');
+  const quotes = [...article.querySelectorAll('.pullquote')];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const pill = document.querySelector('.time-pill');
   const toc = document.querySelector('.toc');
   const tocTime = toc.querySelector('.toc-time');
@@ -38,6 +40,18 @@
     const fadeOver = (preamble.offsetTop + preamble.offsetHeight) * 0.6;
     preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
+
+    // Parallax for pull quotes: --d runs from 1 (quote at the bottom of the
+    // viewport) to -1 (at the top); CSS turns it into small offsets. Measured
+    // from layout position, not the transformed box, so it can't feed back.
+    if (!reduceMotion.matches) {
+      for (const q of quotes) {
+        const centre = q.offsetTop + q.offsetHeight / 2 - scrollY;
+        if (centre < -innerHeight || centre > 2 * innerHeight) continue;
+        const d = Math.max(-1, Math.min(1, (centre - innerHeight / 2) / (innerHeight / 2)));
+        q.style.setProperty('--d', d.toFixed(3));
+      }
+    }
 
     const label = timeLeft(f);
     tocTime.textContent = label;
@@ -80,6 +94,17 @@
   addEventListener('resize', requestUpdate);
   onScroll();
   pill.classList.remove('is-visible');
+
+  // Pull quotes fade up into place the first time they come into view.
+  document.documentElement.classList.add('js');
+  const reveal = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.classList.add('is-revealed');
+      reveal.unobserve(e.target);
+    }
+  }, { rootMargin: '0px 0px -15% 0px' });
+  quotes.forEach((q) => reveal.observe(q));
 
   // ---- Citation previews ----
   // Narrow screens: hover (or tap) a citation to see the reference in a card.
