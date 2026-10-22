@@ -17,7 +17,10 @@
   const bar = document.querySelector('.progress-bar');
   const preamble = document.querySelector('.preamble');
   const quotes = [...article.querySelectorAll('.pullquote')];
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const veil = document.createElement('div');
+  veil.className = 'focus-veil';
+  veil.setAttribute('aria-hidden', 'true');
+  document.body.append(veil);
   const pill = document.querySelector('.time-pill');
   const toc = document.querySelector('.toc');
   const tocTime = toc.querySelector('.toc-time');
@@ -41,20 +44,16 @@
     preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
 
-    // Full-screen pull quotes: the pinned quote fades in as its section
-    // enters and out as it leaves; the margin contents hide while it fills
-    // the screen.
-    let quoteActive = false;
+    // Pull quote focus: the veil rises as a quote nears the middle of the
+    // screen (full at the centre, gone by about two-thirds of the way out).
+    let focus = 0;
     for (const q of quotes) {
       const r = q.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight) continue;
-      if (r.top < innerHeight * 0.5 && r.bottom > innerHeight * 0.5) quoteActive = true;
-      if (reduceMotion.matches) continue;
-      const enter = (innerHeight - r.top) / (innerHeight * 0.75);
-      const leave = r.bottom / (innerHeight * 0.75);
-      q.style.setProperty('--o', Math.max(0, Math.min(1, enter, leave)).toFixed(3));
+      const dist = Math.abs(r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
+      const t = Math.max(0, Math.min(1, (0.65 - dist) / 0.45));
+      focus = Math.max(focus, t * t * (3 - 2 * t));
     }
-    document.body.classList.toggle('quote-active', quoteActive);
+    veil.style.opacity = (focus * 0.9).toFixed(3);
 
     const label = timeLeft(f);
     tocTime.textContent = label;

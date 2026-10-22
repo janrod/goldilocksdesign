@@ -139,7 +139,7 @@ for (const [name, fig] of Object.entries(figures)) {
 // the paragraph containing `near`. The essay text itself is untouched.
 const pullquotes = JSON.parse(await readFile('site/pullquotes.json', 'utf8'));
 for (const q of pullquotes) {
-  placeNear(q, `<aside class="pullquote" aria-hidden="true"><div class="pq-stage"><p>${q.text}</p></div></aside>\n`, 'Pull quote');
+  placeNear(q, `<aside class="pullquote" aria-hidden="true"><p>${q.text}</p></aside>\n`, 'Pull quote');
 }
 
 // Link in-text citations like [14] or [25, 30] to the reference list, and

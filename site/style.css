@@ -96,10 +96,6 @@ body {
 }
 main { padding-top: clamp(3rem, 10vh, 7rem); padding-bottom: 5rem; }
 
-/* Distance from the viewport's left edge to the text column, for sections
-   that break out to full width. */
-:root { --bleed: calc(max(0px, (100vw - var(--col-max)) / 2) + var(--col-pad-l)); }
-body { overflow-x: clip; }
 
 .masthead { margin-bottom: clamp(3rem, 8vh, 5rem); }
 .site-name {
@@ -277,59 +273,43 @@ h2, li { scroll-margin-top: 2rem; }
   to { opacity: 1; transform: none; }
 }
 
-/* Pull quotes: full-screen interludes. Each is a full-width section taller
-   than the viewport; the quote is pinned in the middle while the section
-   scrolls past, so the essay text slides away behind it and back after.
-   script.js sets --o (0–1) as the section enters and leaves. */
+/* Pull quotes sit in the text. As one comes into focus near the middle of
+   the screen, a light veil (.focus-veil, faded in by script.js) dims
+   everything else and the quote stays on top. */
 .pullquote {
-  clear: both;
   position: relative;
-  width: 100vw;
-  height: 150vh;
-  height: 150svh;
-  margin: 3.5rem 0 3.5rem calc(-1 * var(--bleed));
-  background: var(--callout);
-}
-.pq-stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 max(1.5rem, 8vw);
+  z-index: 21;
+  margin: 2.25rem 0;
 }
 .pullquote p {
   margin: 0;
-  max-width: 18em;
-  font-size: clamp(1.8rem, 0.9rem + 3.4vw, 4.4rem);
-  line-height: 1.12;
+  font-size: 1.45rem;
+  line-height: 1.3;
   font-style: italic;
-  font-variation-settings: "opsz" 60;
-  letter-spacing: -0.01em;
-  text-align: center;
+  font-variation-settings: "opsz" 48;
+  letter-spacing: -0.005em;
   text-wrap: balance;
   hyphens: manual;
   hanging-punctuation: none;
-  opacity: var(--o, 1);
-  transform: translateY(calc((1 - var(--o, 1)) * 2.5rem));
 }
 .pullquote p::before {
   content: "\201C";
   display: block;
   height: 0.5em;
-  margin-bottom: 0.15em;
-  font-size: 1.6em;
+  margin-bottom: 0.1em;
+  font-size: 1.8em;
   line-height: 1;
   font-style: normal;
   color: var(--muted);
 }
-@media (prefers-reduced-motion: reduce) {
-  .pullquote p { opacity: 1; transform: none; }
+.focus-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--callout);
+  opacity: 0;
+  pointer-events: none;
 }
-/* While a quote fills the screen, the margin contents step aside. */
-.quote-active .toc { opacity: 0 !important; pointer-events: none; }
 
 /* Figures */
 figure { margin: 2.25rem 0; }
