@@ -31,15 +31,13 @@
 
   // A quote keeps its normal-size slot in the text. Its line breaks are
   // frozen as laid out at normal size, and its text is lifted over the slot
-  // so it can grow with focus f, up to 125% (less if it would not fit the
-  // screen) and drifting to the middle of the screen, without re-wrapping
-  // or moving the essay.
+  // so it can grow with focus f straight out from its own centre (no
+  // sideways movement), up to 125% or less if it would not fit the screen,
+  // without re-wrapping or moving the essay.
   const QUOTE_ZOOM = 1.25;
-  function sizeQuote(q, r, f) {
+  function sizeQuote(q, f) {
     if (f === 0 && !q.dataset.sized) return;
     const p = q.firstElementChild;
-    const dx = innerWidth / 2 - (r.left + r.width / 2);
-    p.style.left = `calc(50% + ${dx * f}px)`;
     p.style.fontSize = `${1 + (q.zoom - 1) * f}em`;
     if (f === 0) delete q.dataset.sized; else q.dataset.sized = '1';
   }
@@ -89,7 +87,10 @@
     document.documentElement.classList.add('js-quotes');
     for (const q of quotes) {
       const p = q.firstElementChild;
-      q.zoom = Math.max(1, Math.min(QUOTE_ZOOM, (innerWidth - 32) / p.offsetWidth, (innerHeight * 0.8) / p.offsetHeight));
+      const r = q.getBoundingClientRect();
+      const centre = r.left + r.width / 2;
+      const room = 2 * (Math.min(centre, innerWidth - centre) - 16);
+      q.zoom = Math.max(1, Math.min(QUOTE_ZOOM, room / p.offsetWidth, (innerHeight * 0.8) / p.offsetHeight));
     }
   }
   layoutQuotes();
@@ -128,7 +129,7 @@
       const t = Math.max(0, Math.min(1, (0.65 - dist) / 0.45));
       const f = t * t * (3 - 2 * t);
       focus = Math.max(focus, f);
-      sizeQuote(q, r, reduceMotion.matches ? 0 : f);
+      sizeQuote(q, reduceMotion.matches ? 0 : f);
     }
     veil.style.opacity = (focus * 0.9).toFixed(3);
 
