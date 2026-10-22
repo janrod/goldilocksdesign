@@ -349,8 +349,7 @@ h2, li { scroll-margin-top: 2rem; }
   fill: none;
   stroke: var(--frame);
   stroke-width: 1.5;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: 0 1;
 }
 
 /* Figures */

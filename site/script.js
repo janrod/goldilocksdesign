@@ -33,11 +33,15 @@
   const QUOTE_ZOOM = 1.25;
   const FRAME_PAD_X = 44;
   const FRAME_PAD_Y = 40;
-  function sizeQuote(q, f) {
-    if (q.f === f) return;
-    q.f = f;
+  // The line runs clockwise from the top-left corner: it draws in while the
+  // quote approaches the centre, then carries on clockwise as it leaves,
+  // erasing from where it started.
+  function sizeQuote(q, f, leaving) {
+    const key = `${f}${leaving}`;
+    if (q.f === key) return;
+    q.f = key;
     q.querySelector('p').style.fontSize = `${reduceMotion.matches ? 1 : 1 + (q.zoom - 1) * f}em`;
-    q.frame.style.strokeDashoffset = String(1 - f);
+    q.frame.style.strokeDasharray = leaving ? `0 ${1 - f} ${f} 1` : `${f} 1`;
   }
 
   // Split a laid-out paragraph into the lines the browser chose.
@@ -140,8 +144,8 @@
     // in the middle of the screen and receding as soon as it moves past.
     for (const q of quotes) {
       const r = q.getBoundingClientRect();
-      const dist = Math.abs(r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
-      sizeQuote(q, reduceMotion.matches ? 1 : Math.max(0, 1 - dist));
+      const offset = (r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
+      sizeQuote(q, reduceMotion.matches ? 1 : Math.max(0, 1 - Math.abs(offset)), offset < 0);
     }
 
     const label = timeLeft(f);
