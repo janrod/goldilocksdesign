@@ -73,11 +73,14 @@ function stripTags(s) { return s.replace(/<[^>]+>/g, ''); }
 const title = stripTags(html.match(/<h1>(.*?)<\/h1>/)[1]);
 const subtitle = stripTags(html.match(/<\/h1>\s*<p>(.*?)<\/p>/)[1]);
 const slug = (s) => stripTags(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-// Essay sections are numbered for wayfinding; the references are not.
+// Essay sections are numbered for wayfinding, in Roman numerals so they are
+// not confused with citation numbers; the references are not numbered.
+const roman = (n) => [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]
+  .reduce((out, [value, numeral]) => { while (n >= value) { out += numeral; n -= value; } return out; }, '');
 const sections = [];
 html = html.replace(/<h2>(.*?)<\/h2>/g, (_, text) => {
   const id = slug(text);
-  const n = id === 'references' ? '' : String(sections.filter((s) => s.n).length + 1);
+  const n = id === 'references' ? '' : roman(sections.filter((s) => s.n).length + 1);
   sections.push({ id, text, n });
   const num = n ? `<span class="section-num">${n}</span>` : '';
   return `<h2 id="${id}">${num}${text}</h2>`;
