@@ -71,26 +71,35 @@ body {
 
 /* Layout: one centred column. On wide screens it grows a right margin for
    notes, and on wider screens a left margin for the contents. */
-.col {
-  max-width: calc(var(--measure) + 2rem);
-  margin: 0 auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+:root {
+  --col-max: calc(var(--measure) + 2rem);
+  --col-pad-l: 1rem;
+  --col-pad-r: 1rem;
 }
-main { padding-top: clamp(3rem, 10vh, 7rem); padding-bottom: 5rem; }
-
 @media (min-width: 1100px) {
-  .col {
-    max-width: calc(var(--measure) + var(--gap) + var(--note) + 2rem);
-    padding-right: calc(var(--gap) + var(--note) + 1rem);
+  :root {
+    --col-max: calc(var(--measure) + var(--gap) + var(--note) + 2rem);
+    --col-pad-r: calc(var(--gap) + var(--note) + 1rem);
   }
 }
 @media (min-width: 1440px) {
-  .col {
-    max-width: calc(var(--toc) + var(--measure) + var(--note) + 2 * var(--gap) + 2rem);
-    padding-left: calc(var(--toc) + var(--gap) + 1rem);
+  :root {
+    --col-max: calc(var(--toc) + var(--measure) + var(--note) + 2 * var(--gap) + 2rem);
+    --col-pad-l: calc(var(--toc) + var(--gap) + 1rem);
   }
 }
+.col {
+  max-width: var(--col-max);
+  margin: 0 auto;
+  padding-left: var(--col-pad-l);
+  padding-right: var(--col-pad-r);
+}
+main { padding-top: clamp(3rem, 10vh, 7rem); padding-bottom: 5rem; }
+
+/* Distance from the viewport's left edge to the text column, for sections
+   that break out to full width. */
+:root { --bleed: calc(max(0px, (100vw - var(--col-max)) / 2) + var(--col-pad-l)); }
+body { overflow-x: clip; }
 
 .masthead { margin-bottom: clamp(3rem, 8vh, 5rem); }
 .site-name {
@@ -268,54 +277,59 @@ h2, li { scroll-margin-top: 2rem; }
   to { opacity: 1; transform: none; }
 }
 
-/* Pull quotes */
+/* Pull quotes: full-screen interludes. Each is a full-width section taller
+   than the viewport; the quote is pinned in the middle while the section
+   scrolls past, so the essay text slides away behind it and back after.
+   script.js sets --o (0–1) as the section enters and leaves. */
 .pullquote {
-  margin: 2.25rem 0;
-  padding: 1.35rem 1.6rem 1.5rem;
+  clear: both;
+  position: relative;
+  width: 100vw;
+  height: 150vh;
+  height: 150svh;
+  margin: 3.5rem 0 3.5rem calc(-1 * var(--bleed));
   background: var(--callout);
-  border-radius: 6px;
+}
+.pq-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 max(1.5rem, 8vw);
 }
 .pullquote p {
   margin: 0;
-  font-size: 1.2rem;
-  line-height: 1.4;
+  max-width: 18em;
+  font-size: clamp(1.8rem, 0.9rem + 3.4vw, 4.4rem);
+  line-height: 1.12;
   font-style: italic;
-  font-variation-settings: "opsz" 40;
-  text-wrap: pretty;
+  font-variation-settings: "opsz" 60;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-wrap: balance;
   hyphens: manual;
   hanging-punctuation: none;
+  opacity: var(--o, 1);
+  transform: translateY(calc((1 - var(--o, 1)) * 2.5rem));
 }
 .pullquote p::before {
   content: "\201C";
   display: block;
-  height: 0.55em;
-  font-size: 2.6em;
+  height: 0.5em;
+  margin-bottom: 0.15em;
+  font-size: 1.6em;
   line-height: 1;
   font-style: normal;
   color: var(--muted);
 }
-
-/* Parallax: the panel drifts a little slower than the page and the quote mark
-   slower still, so the quote reads as a layer beneath the text. --d is set by
-   script.js from 1 (bottom of the viewport) to -1 (top). */
-@media (prefers-reduced-motion: no-preference) {
-  .pullquote {
-    transform: translateY(calc(var(--d, 0) * -16px));
-    will-change: transform;
-  }
-  .pullquote p::before {
-    transform: translateY(calc(var(--d, 0) * -12px));
-  }
-  .js .pullquote p {
-    opacity: 0;
-    transform: translateY(0.75rem);
-    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .js .pullquote.is-revealed p {
-    opacity: 1;
-    transform: none;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .pullquote p { opacity: 1; transform: none; }
 }
+/* While a quote fills the screen, the margin contents step aside. */
+.quote-active .toc { opacity: 0 !important; pointer-events: none; }
 
 /* Figures */
 figure { margin: 2.25rem 0; }
