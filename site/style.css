@@ -160,6 +160,15 @@ h2 {
   margin: 3rem 0 1rem;
   text-wrap: balance;
 }
+.section-num {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  font-feature-settings: "lnum", "tnum";
+  color: var(--muted);
+}
 
 p {
   margin: 0 0 1.25rem;
@@ -438,7 +447,8 @@ article > ul li::marker { color: var(--muted); }
 .toc ol { list-style: none; margin: 0; padding: 0; }
 .toc li { margin: 0 0 0.55rem; }
 .toc a {
-  display: block;
+  display: grid;
+  grid-template-columns: 1.4em 1fr;
   padding-left: 0.75rem;
   border-left: 2px solid var(--rule);
   color: var(--muted);
@@ -446,6 +456,7 @@ article > ul li::marker { color: var(--muted); }
   transition: color 0.2s, border-color 0.2s;
 }
 .toc a:hover { color: var(--text); }
+.toc-num { font-feature-settings: "lnum", "tnum"; }
 .toc a[aria-current] { color: var(--text); border-left-color: var(--accent); }
 .toc-time {
   margin: 1.25rem 0 0;
