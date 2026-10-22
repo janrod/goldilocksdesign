@@ -31,8 +31,8 @@
   // grows from its centre (up to 125%, within the column) and an SVG line
   // draws a rounded rectangle around it.
   const QUOTE_ZOOM = 1.25;
-  const FRAME_PAD_X = 28;
-  const FRAME_PAD_Y = 24;
+  const FRAME_PAD_X = 44;
+  const FRAME_PAD_Y = 40;
   function sizeQuote(q, f) {
     if (q.f === f) return;
     q.f = f;
@@ -101,7 +101,7 @@
       svg.setAttribute('height', fh);
       svg.setAttribute('viewBox', `0 0 ${fw} ${fh}`);
       const rect = document.createElementNS(SVG, 'rect');
-      for (const [k, v] of Object.entries({ x: 0.75, y: 0.75, width: fw - 1.5, height: fh - 1.5, rx: 14, pathLength: 1 })) {
+      for (const [k, v] of Object.entries({ x: 0.75, y: 0.75, width: fw - 1.5, height: fh - 1.5, rx: 28, pathLength: 1 })) {
         rect.setAttribute(k, v);
       }
       svg.append(rect);

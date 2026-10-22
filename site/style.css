@@ -23,6 +23,7 @@
   --accent: #1f1f1f;
   --selection: #e2e2e2;
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.07);
+  --frame: rgba(0, 0, 0, 0.1);
 
   --measure: 34rem;
   --note: 14rem;
@@ -39,6 +40,7 @@
     --rule: #333333;
     --accent: #e6e6e6;
     --selection: #3a3a3a;
+    --frame: rgba(255, 255, 255, 0.14);
     --shadow: 0 8px 28px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 }
@@ -345,7 +347,7 @@ h2, li { scroll-margin-top: 2rem; }
 }
 .quote-frame rect {
   fill: none;
-  stroke: var(--text);
+  stroke: var(--frame);
   stroke-width: 1.5;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
