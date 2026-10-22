@@ -29,34 +29,72 @@
   const headings = tocLinks.map((a) => document.getElementById(a.hash.slice(1)));
   let pillTimer;
 
-  // A quote keeps its normal-size slot in the text; its text is laid over
-  // that slot and grows from 1x to 2x with focus f, widening and moving
-  // towards the middle of the screen so the bigger lines still fit.
+  // A quote keeps its normal-size slot in the text. Its line breaks are
+  // frozen as laid out at normal size, and its text is lifted over the slot
+  // so it can grow with focus f, up to 125% (less if it would not fit the
+  // screen) and drifting to the middle of the screen, without re-wrapping
+  // or moving the essay.
+  const QUOTE_ZOOM = 1.25;
   function sizeQuote(q, r, f) {
     if (f === 0 && !q.dataset.sized) return;
     const p = q.firstElementChild;
-    const colW = q.clientWidth;
-    const targetW = Math.min(innerWidth - 32, colW * 1.5);
-    p.style.width = `${colW + (targetW - colW) * f}px`;
-    p.style.left = `${((innerWidth - targetW) / 2 - r.left) * f}px`;
-    p.style.fontSize = `${1 + f}em`;
+    const dx = innerWidth / 2 - (r.left + r.width / 2);
+    p.style.left = `calc(50% + ${dx * f}px)`;
+    p.style.fontSize = `${1 + (q.zoom - 1) * f}em`;
     if (f === 0) delete q.dataset.sized; else q.dataset.sized = '1';
   }
 
-  // Reserve each quote's normal height in the text before its text is
-  // lifted out of the flow; redone when the width changes.
+  // Split a laid-out paragraph into the lines the browser chose.
+  function lineBreaks(p) {
+    const node = p.firstChild;
+    const text = node.data;
+    const range = document.createRange();
+    const lines = [];
+    let lineStart = 0;
+    let lastTop = null;
+    for (const m of text.matchAll(/\S+/g)) {
+      range.setStart(node, m.index);
+      range.setEnd(node, m.index + 1);
+      const top = range.getBoundingClientRect().top;
+      if (lastTop !== null && top > lastTop + 2) {
+        lines.push(text.slice(lineStart, m.index).trim());
+        lineStart = m.index;
+      }
+      lastTop = top;
+    }
+    lines.push(text.slice(lineStart).trim());
+    return lines;
+  }
+
+  // Lay quotes out at normal size, reserve that height in the text, freeze
+  // the line breaks, then work out how far each may grow. Redone when the
+  // width changes.
   function layoutQuotes() {
     document.documentElement.classList.remove('js-quotes');
     for (const q of quotes) {
+      const p = q.firstElementChild;
+      q.dataset.text ??= p.textContent;
+      p.textContent = q.dataset.text;
+      p.removeAttribute('style');
       q.style.height = '';
-      q.firstElementChild.removeAttribute('style');
       delete q.dataset.sized;
     }
     const heights = quotes.map((q) => q.offsetHeight);
-    quotes.forEach((q, i) => { q.style.height = `${heights[i]}px`; });
+    const lines = quotes.map((q) => lineBreaks(q.firstElementChild));
+    quotes.forEach((q, i) => {
+      q.style.height = `${heights[i]}px`;
+      q.firstElementChild.replaceChildren(...lines[i].map((line) =>
+        Object.assign(document.createElement('span'), { className: 'quote-line', textContent: line })));
+    });
     document.documentElement.classList.add('js-quotes');
+    for (const q of quotes) {
+      const p = q.firstElementChild;
+      q.zoom = Math.max(1, Math.min(QUOTE_ZOOM, (innerWidth - 32) / p.offsetWidth, (innerHeight * 0.8) / p.offsetHeight));
+    }
   }
   layoutQuotes();
+  // Line breaks depend on the web font; lay out again once it has loaded.
+  document.fonts.ready.then(() => { layoutQuotes(); requestUpdate(); });
   let lastWidth = innerWidth;
   addEventListener('resize', () => {
     if (innerWidth === lastWidth) return;
