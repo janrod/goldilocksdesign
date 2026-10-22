@@ -131,7 +131,7 @@
       focus = Math.max(focus, f);
       sizeQuote(q, reduceMotion.matches ? 0 : f);
     }
-    veil.style.opacity = (focus * 0.9).toFixed(3);
+    veil.style.opacity = (focus * 0.5).toFixed(3);
 
     const label = timeLeft(f);
     tocTime.textContent = label;
