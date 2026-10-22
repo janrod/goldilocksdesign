@@ -6,6 +6,9 @@ import sharp from 'sharp';
 const SOURCE = 'resources/Who Is Speaking.md';
 const OUT_DIR = '_site';
 const SITE_URL = 'https://goldilocksdesign.com/';
+const PUBLISHED = '2026-10-22';
+const publishedLabel = new Date(`${PUBLISHED}T12:00:00Z`)
+  .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 let md = await readFile(SOURCE, 'utf8');
 
@@ -178,7 +181,7 @@ const shuffleAuthors = `<script>(() => {
 })();</script>`;
 html = html.replace(
   /<h1>(.*?)<\/h1>\s*<p>(.*?)<\/p>\s*<p>(.*?)<\/p>\s*<p>/s,
-  `<header><p class="kicker">Inaugural essay</p><h1>$1</h1><p class="subtitle">$2</p><p class="byline"><span class="authors">$3</span> · ${minutes} min read</p>${shuffleAuthors}</header>\n<p class="lede">`
+  `<header><p class="kicker">Inaugural essay</p><h1>$1</h1><p class="subtitle">$2</p><p class="byline"><span class="authors">$3</span> · <time datetime="${PUBLISHED}">${publishedLabel}</time> · ${minutes} min read</p>${shuffleAuthors}</header>\n<p class="lede">`
 );
 
 const toc = sections
@@ -199,6 +202,8 @@ const page = template
   .replaceAll('{{subtitle}}', subtitle)
   .replaceAll('{{description}}', description)
   .replaceAll('{{url}}', SITE_URL)
+  .replaceAll('{{published}}', PUBLISHED)
+  .replaceAll('{{year}}', PUBLISHED.slice(0, 4))
   .replaceAll('{{minutes}}', String(minutes));
 
 await rm(OUT_DIR, { recursive: true, force: true });
