@@ -296,11 +296,10 @@ h2, li { scroll-margin-top: 2rem; }
 }
 
 /* Pull quotes sit in the text. As one comes into focus near the middle of
-   the screen, a light veil (.focus-veil, faded in by script.js) dims
-   everything else and the quote stays on top. */
+   the screen it grows a little and a line draws itself around it
+   (script.js); the text around it never moves or dims. */
 .pullquote {
   position: relative;
-  z-index: 21;
   margin: 2.25rem 0;
   font-size: 1.45rem;
 }
@@ -336,13 +335,20 @@ h2, li { scroll-margin-top: 2rem; }
   font-style: normal;
   color: var(--muted);
 }
-.focus-veil {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  background: var(--callout);
-  opacity: 0;
+.quote-frame {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: visible;
   pointer-events: none;
+}
+.quote-frame rect {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 
 /* Figures */

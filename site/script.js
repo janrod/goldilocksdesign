@@ -18,10 +18,6 @@
   const preamble = document.querySelector('.preamble');
   const quotes = [...article.querySelectorAll('.pullquote')];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const veil = document.createElement('div');
-  veil.className = 'focus-veil';
-  veil.setAttribute('aria-hidden', 'true');
-  document.body.append(veil);
   const pill = document.querySelector('.time-pill');
   const toc = document.querySelector('.toc');
   const tocTime = toc.querySelector('.toc-time');
@@ -29,17 +25,19 @@
   const headings = tocLinks.map((a) => document.getElementById(a.hash.slice(1)));
   let pillTimer;
 
-  // A quote keeps its normal-size slot in the text. Its line breaks are
-  // frozen as laid out at normal size, and its text is lifted over the slot
-  // so it can grow with focus f straight out from its own centre (no
-  // sideways movement), up to 125% or less if it would not fit the screen,
-  // without re-wrapping or moving the essay.
+  // A quote's slot in the text is sized for the quote at full size inside
+  // its frame, so nothing around it ever moves or gets covered. Its line
+  // breaks are frozen as laid out at normal size; with focus f the text
+  // grows from its centre (up to 125%, within the column) and an SVG line
+  // draws a rounded rectangle around it.
   const QUOTE_ZOOM = 1.25;
+  const FRAME_PAD_X = 28;
+  const FRAME_PAD_Y = 24;
   function sizeQuote(q, f) {
-    if (f === 0 && !q.dataset.sized) return;
-    const p = q.firstElementChild;
-    p.style.fontSize = `${1 + (q.zoom - 1) * f}em`;
-    if (f === 0) delete q.dataset.sized; else q.dataset.sized = '1';
+    if (q.f === f) return;
+    q.f = f;
+    q.querySelector('p').style.fontSize = `${reduceMotion.matches ? 1 : 1 + (q.zoom - 1) * f}em`;
+    q.frame.style.strokeDashoffset = String(1 - f);
   }
 
   // Split a laid-out paragraph into the lines the browser chose.
@@ -64,33 +62,51 @@
     return lines;
   }
 
-  // Lay quotes out at normal size, reserve that height in the text, freeze
-  // the line breaks, then work out how far each may grow. Redone when the
+  // Lay quotes out at normal size, freeze the line breaks, work out how far
+  // each may grow, then size its slot and frame for that. Redone when the
   // width changes.
+  const SVG = 'http://www.w3.org/2000/svg';
   function layoutQuotes() {
     document.documentElement.classList.remove('js-quotes');
     for (const q of quotes) {
-      const p = q.firstElementChild;
+      const p = q.querySelector('p');
       q.dataset.text ??= p.textContent;
       p.textContent = q.dataset.text;
       p.removeAttribute('style');
       q.style.height = '';
-      delete q.dataset.sized;
+      q.querySelector('svg')?.remove();
+      q.f = undefined;
     }
-    const heights = quotes.map((q) => q.offsetHeight);
-    const lines = quotes.map((q) => lineBreaks(q.firstElementChild));
+    const lines = quotes.map((q) => lineBreaks(q.querySelector('p')));
     quotes.forEach((q, i) => {
-      q.style.height = `${heights[i]}px`;
-      q.firstElementChild.replaceChildren(...lines[i].map((line) =>
+      q.querySelector('p').replaceChildren(...lines[i].map((line) =>
         Object.assign(document.createElement('span'), { className: 'quote-line', textContent: line })));
     });
     document.documentElement.classList.add('js-quotes');
     for (const q of quotes) {
-      const p = q.firstElementChild;
-      const r = q.getBoundingClientRect();
-      const centre = r.left + r.width / 2;
-      const room = 2 * (Math.min(centre, innerWidth - centre) - 16);
-      q.zoom = Math.max(1, Math.min(QUOTE_ZOOM, room / p.offsetWidth, (innerHeight * 0.8) / p.offsetHeight));
+      const p = q.querySelector('p');
+      const colW = q.clientWidth;
+      const w = p.offsetWidth;
+      const h = p.offsetHeight;
+      q.zoom = reduceMotion.matches ? 1
+        : Math.max(1, Math.min(QUOTE_ZOOM, (colW - 2 * FRAME_PAD_X) / w, (innerHeight * 0.7) / h));
+      const padX = Math.max(12, Math.min(FRAME_PAD_X, (colW - w * q.zoom) / 2));
+      const fw = Math.round(w * q.zoom + 2 * padX);
+      const fh = Math.round(h * q.zoom + 2 * FRAME_PAD_Y);
+      q.style.height = `${fh}px`;
+
+      const svg = document.createElementNS(SVG, 'svg');
+      svg.classList.add('quote-frame');
+      svg.setAttribute('width', fw);
+      svg.setAttribute('height', fh);
+      svg.setAttribute('viewBox', `0 0 ${fw} ${fh}`);
+      const rect = document.createElementNS(SVG, 'rect');
+      for (const [k, v] of Object.entries({ x: 0.75, y: 0.75, width: fw - 1.5, height: fh - 1.5, rx: 14, pathLength: 1 })) {
+        rect.setAttribute(k, v);
+      }
+      svg.append(rect);
+      q.prepend(svg);
+      q.frame = rect;
     }
   }
   layoutQuotes();
@@ -119,19 +135,15 @@
     preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
 
-    // Pull quote focus: as a quote nears the middle of the screen the veil
-    // rises and the quote grows to twice its size (full at the centre, back
-    // to normal by about two-thirds of the way out).
-    let focus = 0;
+    // Pull quote focus: as a quote nears the middle of the screen it grows
+    // and a line draws itself around it (complete at the centre, undone by
+    // about two-thirds of the way out).
     for (const q of quotes) {
       const r = q.getBoundingClientRect();
       const dist = Math.abs(r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
       const t = Math.max(0, Math.min(1, (0.65 - dist) / 0.45));
-      const f = t * t * (3 - 2 * t);
-      focus = Math.max(focus, f);
-      sizeQuote(q, reduceMotion.matches ? 0 : f);
+      sizeQuote(q, reduceMotion.matches ? 1 : t * t * (3 - 2 * t));
     }
-    veil.style.opacity = (focus * 0.5).toFixed(3);
 
     const label = timeLeft(f);
     tocTime.textContent = label;
