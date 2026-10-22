@@ -135,14 +135,13 @@
     preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
 
-    // Pull quote focus: as a quote nears the middle of the screen it grows
-    // and a line draws itself around it (complete at the centre, undone by
-    // about two-thirds of the way out).
+    // Pull quote focus: from the moment a quote enters the screen it grows
+    // and a line draws itself around it, complete exactly when the quote is
+    // in the middle of the screen and receding as soon as it moves past.
     for (const q of quotes) {
       const r = q.getBoundingClientRect();
       const dist = Math.abs(r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
-      const t = Math.max(0, Math.min(1, (0.65 - dist) / 0.45));
-      sizeQuote(q, reduceMotion.matches ? 1 : t * t * (3 - 2 * t));
+      sizeQuote(q, reduceMotion.matches ? 1 : Math.max(0, 1 - dist));
     }
 
     const label = timeLeft(f);
