@@ -17,6 +17,7 @@
   const bar = document.querySelector('.progress-bar');
   const preamble = document.querySelector('.preamble');
   const quotes = [...article.querySelectorAll('.pullquote')];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const veil = document.createElement('div');
   veil.className = 'focus-veil';
   veil.setAttribute('aria-hidden', 'true');
@@ -27,6 +28,41 @@
   const tocLinks = [...toc.querySelectorAll('a')];
   const headings = tocLinks.map((a) => document.getElementById(a.hash.slice(1)));
   let pillTimer;
+
+  // A quote keeps its normal-size slot in the text; its text is laid over
+  // that slot and grows from 1x to 2x with focus f, widening and moving
+  // towards the middle of the screen so the bigger lines still fit.
+  function sizeQuote(q, r, f) {
+    if (f === 0 && !q.dataset.sized) return;
+    const p = q.firstElementChild;
+    const colW = q.clientWidth;
+    const targetW = Math.min(innerWidth - 32, colW * 1.5);
+    p.style.width = `${colW + (targetW - colW) * f}px`;
+    p.style.left = `${((innerWidth - targetW) / 2 - r.left) * f}px`;
+    p.style.fontSize = `${1 + f}em`;
+    if (f === 0) delete q.dataset.sized; else q.dataset.sized = '1';
+  }
+
+  // Reserve each quote's normal height in the text before its text is
+  // lifted out of the flow; redone when the width changes.
+  function layoutQuotes() {
+    document.documentElement.classList.remove('js-quotes');
+    for (const q of quotes) {
+      q.style.height = '';
+      q.firstElementChild.removeAttribute('style');
+      delete q.dataset.sized;
+    }
+    const heights = quotes.map((q) => q.offsetHeight);
+    quotes.forEach((q, i) => { q.style.height = `${heights[i]}px`; });
+    document.documentElement.classList.add('js-quotes');
+  }
+  layoutQuotes();
+  let lastWidth = innerWidth;
+  addEventListener('resize', () => {
+    if (innerWidth === lastWidth) return;
+    lastWidth = innerWidth;
+    layoutQuotes();
+  });
 
   function timeLeft(f) {
     if (f <= 0) return `${totalMinutes} min read`;
@@ -44,14 +80,17 @@
     preamble.style.opacity = Math.max(0, 1 - scrollY / fadeOver);
     trackDepth(f);
 
-    // Pull quote focus: the veil rises as a quote nears the middle of the
-    // screen (full at the centre, gone by about two-thirds of the way out).
+    // Pull quote focus: as a quote nears the middle of the screen the veil
+    // rises and the quote grows to twice its size (full at the centre, back
+    // to normal by about two-thirds of the way out).
     let focus = 0;
     for (const q of quotes) {
       const r = q.getBoundingClientRect();
       const dist = Math.abs(r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2);
       const t = Math.max(0, Math.min(1, (0.65 - dist) / 0.45));
-      focus = Math.max(focus, t * t * (3 - 2 * t));
+      const f = t * t * (3 - 2 * t);
+      focus = Math.max(focus, f);
+      sizeQuote(q, r, reduceMotion.matches ? 0 : f);
     }
     veil.style.opacity = (focus * 0.9).toFixed(3);
 
