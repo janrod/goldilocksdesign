@@ -30,8 +30,14 @@
   --toc: 11rem;
   --gap: 2.5rem;
 }
+/* Dark theme: follows the device setting unless the reader has picked a
+   theme with the toggle (data-theme on <html>, set by the script in
+   template.html). */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #141414;
     --surface: #1e1e1e;
     --callout: #202020;
@@ -43,6 +49,18 @@
     --frame: rgba(255, 255, 255, 0.14);
     --shadow: 0 8px 28px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
   }
+}
+:root[data-theme="dark"] {
+  --bg: #141414;
+  --surface: #1e1e1e;
+  --callout: #202020;
+  --text: #e6e6e6;
+  --muted: #8f8f8f;
+  --rule: #333333;
+  --accent: #e6e6e6;
+  --selection: #3a3a3a;
+  --frame: rgba(255, 255, 255, 0.14);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -427,8 +445,8 @@ article > ul li::marker { color: var(--muted); }
 
 .time-pill {
   position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: 0.95rem;
+  right: 3.6rem;
   z-index: 40;
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
@@ -444,6 +462,45 @@ article > ul li::marker { color: var(--muted); }
   pointer-events: none;
 }
 .time-pill.is-visible { opacity: 1; transform: none; }
+
+/* Light / dark switch */
+.theme-toggle {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 41;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--muted); }
+.theme-toggle svg { width: 1rem; height: 1rem; }
+.theme-toggle .icon-sun { display: none; }
+.theme-is-dark .theme-toggle .icon-sun { display: block; }
+.theme-is-dark .theme-toggle .icon-moon { display: none; }
+/* The switch animates as a circle of the new theme growing from the
+   button (script.js); the old and new pages are not cross-faded. Where
+   that isn't available, colours crossfade instead (.theme-fading). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.theme-fading,
+.theme-fading *,
+.theme-fading *::before,
+.theme-fading *::after {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+    text-decoration-color 0.25s ease, fill 0.25s ease, stroke 0.25s ease !important;
+}
 
 /* Section contents (widest screens only) */
 .toc { display: none; }
@@ -542,7 +599,7 @@ footer::before {
   @page { margin: 2cm 2.2cm; }
   html { font-size: 11pt; }
   body { line-height: 1.5; }
-  .progress, .time-pill, .toc, .ref-pop, .share-btn, .sidenote, .pullquote, footer { display: none !important; }
+  .progress, .time-pill, .theme-toggle, .toc, .ref-pop, .share-btn, .sidenote, .pullquote, footer { display: none !important; }
   .col { max-width: none; padding: 0; }
   main { padding: 0; }
   header { margin-bottom: 1.5rem; padding-bottom: 1rem; }

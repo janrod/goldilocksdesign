@@ -366,6 +366,49 @@
     setTimeout(() => { shareBtn.hidden = true; }, 1200);
   });
 
+  // ---- Light / dark switch ----
+  // The page follows the device setting until the reader picks a theme; the
+  // pick is remembered. Switching grows a circle of the new theme from the
+  // button where the browser supports view transitions, and crossfades
+  // otherwise.
+
+  const root = document.documentElement;
+  const toggle = document.querySelector('.theme-toggle');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : systemDark.matches);
+  function showTheme() {
+    root.classList.toggle('theme-is-dark', isDark());
+    toggle.setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  showTheme();
+  systemDark.addEventListener('change', showTheme);
+
+  toggle.addEventListener('click', () => {
+    const next = isDark() ? 'light' : 'dark';
+    const apply = () => {
+      root.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch {}
+      showTheme();
+    };
+    // Without view transitions, or with reduced motion: a short crossfade.
+    if (!document.startViewTransition || reduceMotion.matches) {
+      root.classList.add('theme-fading');
+      apply();
+      setTimeout(() => root.classList.remove('theme-fading'), 300);
+      return;
+    }
+    const b = toggle.getBoundingClientRect();
+    const x = b.left + b.width / 2;
+    const y = b.top + b.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(apply).ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    });
+  });
+
   // ---- Print ----
 
   document.querySelector('.print-btn').addEventListener('click', () => print());
