@@ -260,10 +260,16 @@ async function buildEdition(lang) {
     .map((s) => `<li><a href="#${s.id}">${ja ? phrases(s.text) : s.text}</a></li>`)
     .join('\n');
 
-  // The language switch, and the other editions for search engines.
-  const other = t.switchTo;
-  const otherHref = root + EDITIONS[other.lang];
-  const langSwitch = `<a class="lang-switch" href="${otherHref || './'}" hreflang="${other.lang}" lang="${other.lang}" title="${other.title}">${other.label}</a>`;
+  // The language menu (each edition named in its own language), and the
+  // other editions for search engines.
+  const globe = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3c-2.5 2.6-3.8 5.6-3.8 9s1.3 6.4 3.8 9"/></svg>';
+  const langItems = Object.entries(EDITIONS)
+    .map(([l, d]) => `<li><a href="${root + d || './'}" hreflang="${l}" lang="${l}"${l === lang ? ' aria-current="page"' : ''}>${strings[l].name}</a></li>`)
+    .join('');
+  const langSwitch = `<div class="lang-menu">
+      <button type="button" class="lang-toggle" aria-expanded="false" aria-controls="lang-list" aria-label="${t.languageLabel}" title="${t.languageLabel}">${globe}</button>
+      <ul class="lang-list" id="lang-list">${langItems}</ul>
+    </div>`;
   const alternates = [
     ...Object.entries(EDITIONS).map(([l, d]) => `<link rel="alternate" hreflang="${l}" href="${SITE_URL + d}">`),
     `<link rel="alternate" hreflang="x-default" href="${SITE_URL}">`,
@@ -273,12 +279,12 @@ async function buildEdition(lang) {
 
   // Typefaces: Source Serif 4 everywhere; the Japanese edition adds Noto
   // Serif JP (Source Han Serif, Source Serif's CJK companion), subset to the
-  // characters it uses. The English page needs only the switch's label.
+  // characters it uses. The English page needs only the language menu's “日本語”.
   const fonts = [
     ['400 1em "Source Serif 4"'], ['italic 400 1em "Source Serif 4"'], ['600 1em "Source Serif 4"'],
     ...(ja
       ? [['400 1em "Noto Serif JP GD"', '本'], ['600 1em "Noto Serif JP GD"', '本']]
-      : [['400 1em "Noto Serif JP UI"', other.label]]),
+      : [['400 1em "Noto Serif JP UI"', strings.ja.name]]),
   ];
   const preloads = ['source-serif-4-roman', 'source-serif-4-italic', ja ? 'noto-serif-jp' : 'noto-serif-jp-ui']
     .map((f) => `<link rel="preload" href="${root}fonts/${f}.woff2" as="font" type="font/woff2" crossorigin>`)

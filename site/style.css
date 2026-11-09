@@ -462,7 +462,7 @@ article > ul li::marker { color: var(--muted); }
   transform: scaleX(0);
 }
 
-/* Top-right controls: the theme switch in the corner, the language switch
+/* Top-right controls: the theme switch in the corner, the language menu
    under it, and the time left (while scrolling) to the theme switch's left. */
 .controls {
   position: fixed;
@@ -496,27 +496,60 @@ article > ul li::marker { color: var(--muted); }
 }
 .time-pill.is-visible { opacity: 1; transform: none; }
 
-/* Language switch: names the other edition, in its own language. */
-.lang-switch {
-  display: grid;
-  place-items: center;
-  height: 2.1rem;
-  padding: 0 0.85rem;
+/* Language menu: a round button like the theme switch, opening a list of
+   the editions, each named in its own language. */
+.lang-menu { position: relative; }
+.lang-list {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--surface);
   border: 1px solid var(--rule);
-  border-radius: 999px;
-  background: var(--bg);
+  border-radius: 0.7rem;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transform-origin: top right;
+  transition: opacity 0.18s, transform 0.18s, visibility 0s 0.18s;
+}
+.lang-menu.is-open .lang-list {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.lang-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.7rem 0.45rem 0.6rem;
+  border-radius: 0.45rem;
   color: var(--muted);
-  font-size: 0.75rem;
-  line-height: 1;
-  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.2s, border-color 0.2s;
 }
-.lang-switch:hover { color: var(--text); border-color: var(--muted); }
-.lang-switch:lang(ja) { font-family: "Noto Serif JP UI", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif; }
+.lang-list a::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  flex: none;
+}
+.lang-list a[aria-current]::before { background: var(--accent); }
+.lang-list a[aria-current] { color: var(--text); }
+.lang-list a:hover,
+.lang-list a:focus-visible { color: var(--text); background: var(--bg); outline: none; }
+.lang-list a:lang(ja) { font-family: "Noto Serif JP UI", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif; }
+:lang(ja) .lang-list a:lang(ja) { font-family: inherit; }
 
-/* Light / dark switch */
+/* Light / dark switch, and the language button */
+.lang-toggle,
 .theme-toggle {
   display: grid;
   place-items: center;
@@ -530,7 +563,10 @@ article > ul li::marker { color: var(--muted); }
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
 }
+.lang-toggle:hover,
+.lang-menu.is-open .lang-toggle,
 .theme-toggle:hover { color: var(--text); border-color: var(--muted); }
+.lang-toggle svg,
 .theme-toggle svg { width: 1rem; height: 1rem; }
 .theme-toggle .icon-sun { display: none; }
 .theme-is-dark .theme-toggle .icon-sun { display: block; }
@@ -678,6 +714,12 @@ html:lang(ja) em { font-style: normal; }
    citation card) is set as in the English edition. */
 html:lang(ja) [lang="en"] { letter-spacing: 0; text-align: left; line-break: auto; }
 html:lang(ja) [lang="en"] em { font-style: italic; }
+/* The site name is the same mark in every edition. */
+html:lang(ja) .site-name {
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-feature-settings: "kern", "liga", "onum";
+  letter-spacing: 0.1em;
+}
 
 @media print {
   :root {

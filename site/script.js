@@ -445,12 +445,36 @@
   // browser's language; see the template), and the other edition opens at
   // the section being read, since all editions share section ids.
 
-  const langSwitch = document.querySelector('.lang-switch');
-  langSwitch.addEventListener('click', () => {
-    try { localStorage.setItem('lang', langSwitch.hreflang); } catch {}
-    langSwitch.hash = current >= 0 && header.getBoundingClientRect().bottom < 0 ? headings[current].id : '';
-    track(`language-${langSwitch.hreflang}`, `Switched to ${langSwitch.hreflang}`);
+  const langMenu = document.querySelector('.lang-menu');
+  const langToggle = langMenu.querySelector('.lang-toggle');
+  const langLinks = [...langMenu.querySelectorAll('a')];
+  const setLangMenu = (open, focus) => {
+    langMenu.classList.toggle('is-open', open);
+    langToggle.setAttribute('aria-expanded', open);
+    if (focus) (open ? langLinks.find((a) => a.hasAttribute('aria-current')) || langLinks[0] : langToggle).focus();
+  };
+  langToggle.addEventListener('click', (e) => setLangMenu(!langMenu.classList.contains('is-open'), e.detail === 0));
+  langToggle.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setLangMenu(true, true); }
   });
+  langMenu.addEventListener('keydown', (e) => {
+    const i = langLinks.indexOf(document.activeElement);
+    if (e.key === 'Escape') setLangMenu(false, true);
+    else if (i >= 0 && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      langLinks[(i + (e.key === 'ArrowDown' ? 1 : -1) + langLinks.length) % langLinks.length].focus();
+    }
+  });
+  document.addEventListener('click', (e) => { if (!langMenu.contains(e.target)) setLangMenu(false); });
+  langMenu.addEventListener('focusout', (e) => { if (!langMenu.contains(e.relatedTarget)) setLangMenu(false); });
+  for (const a of langLinks) {
+    a.addEventListener('click', (e) => {
+      if (a.hreflang === lang) { e.preventDefault(); setLangMenu(false, true); return; }
+      try { localStorage.setItem('lang', a.hreflang); } catch {}
+      a.hash = current >= 0 && header.getBoundingClientRect().bottom < 0 ? headings[current].id : '';
+      track(`language-${a.hreflang}`, `Switched to ${a.hreflang}`);
+    });
+  }
 
   // ---- Print ----
 

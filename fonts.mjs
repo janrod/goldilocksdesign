@@ -53,7 +53,7 @@ async function main() {
   await writeFile('public/fonts/noto-serif-jp.txt', text + '\n');
   console.log(`Wrote public/fonts/noto-serif-jp.woff2 (${chars.size} characters, ${Math.round(subset.length / 1024)} KB)`);
 
-  const label = strings.en.switchTo.label;
+  const label = strings.ja.name;
   const ui = await subsetFont(font, label, { targetFormat: 'woff2', variationAxes: { wght: 400 } });
   await writeFile('public/fonts/noto-serif-jp-ui.woff2', ui);
   console.log(`Wrote public/fonts/noto-serif-jp-ui.woff2 (“${label}”, ${Math.round(ui.length / 1024)} KB)`);

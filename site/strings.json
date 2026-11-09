@@ -11,7 +11,8 @@
     "tocLabel": "Sections",
     "print": "Print or save as PDF",
     "authorSeparator": ", ",
-    "switchTo": { "lang": "ja", "label": "日本語", "title": "日本語で読む" },
+    "name": "English",
+    "languageLabel": "Language",
     "script": {
       "minRead": "{n} min read",
       "minLeft": "{n} min left",
@@ -37,7 +38,8 @@
     "tocLabel": "目次",
     "print": "印刷・PDFで保存",
     "authorSeparator": "、",
-    "switchTo": { "lang": "en", "label": "English", "title": "Read in English" },
+    "name": "日本語",
+    "languageLabel": "言語",
     "script": {
       "minRead": "読了まで約{n}分",
       "minLeft": "残り約{n}分",
