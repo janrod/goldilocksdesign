@@ -1,6 +1,8 @@
 Copyright 2014 - 2023 Adobe (http://www.adobe.com/), with Reserved Font Name ‘Source’. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
+Noto Serif JP (noto-serif-jp.woff2, noto-serif-jp-ui.woff2, subsets made with `npm run fonts`): Copyright 2017 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'. Distributed by Google Fonts.
+
+Both fonts are licensed under the SIL Open Font License, Version 1.1.
 
 This license is copied below, and is also available with a FAQ at: http://scripts.sil.org/OFL
 

@@ -1,0 +1,54 @@
+{
+  "en": {
+    "source": "resources/Who Is Speaking.md",
+    "figures": "site/figures.json",
+    "pullquotes": "site/pullquotes.json",
+    "locale": "en_GB",
+    "kicker": "Inaugural essay",
+    "preamble": "Goldilocks Design is a vehicle for deeper thinking about design: the role it should play in shaping technology, and how technology should be designed for the next world.",
+    "description": "Why the persona LLMs adopt changes the epistemic status of what the machine produces, and why designing it away is an epistemic project, not an aesthetic one.",
+    "ogAlt": "{title} — {subtitle}, by Jan Rod and Miha Feus",
+    "tocLabel": "Sections",
+    "print": "Print or save as PDF",
+    "authorSeparator": ", ",
+    "switchTo": { "lang": "ja", "label": "日本語", "title": "日本語で読む" },
+    "script": {
+      "minRead": "{n} min read",
+      "minLeft": "{n} min left",
+      "finished": "Finished",
+      "copyLink": "Copy link to quote",
+      "shareLink": "Share link to quote",
+      "copied": "Link copied",
+      "copyFailed": "Couldn’t copy",
+      "toReferences": "Go to references ↓",
+      "toDark": "Switch to dark mode",
+      "toLight": "Switch to light mode"
+    }
+  },
+  "ja": {
+    "source": "resources/Who Is Speaking.ja.md",
+    "figures": "site/figures.ja.json",
+    "pullquotes": "site/pullquotes.ja.json",
+    "locale": "ja_JP",
+    "kicker": "創刊論考",
+    "preamble": "Goldilocks Designは、デザインについて深く考えるための場である。テクノロジーを形づくるうえでデザインが果たすべき役割を問い、来たるべき世界に向けてテクノロジーをどう設計すべきかを探る。",
+    "description": "LLMがまとうペルソナは、機械が生み出すものの認識論的な位置づけを変えてしまう。ペルソナをデザインで取り除くことが、なぜ見た目ではなく認識論の問題なのかを論じる。",
+    "ogAlt": "{title}　{subtitle}（Jan Rod、Miha Feus）",
+    "tocLabel": "目次",
+    "print": "印刷・PDFで保存",
+    "authorSeparator": "、",
+    "switchTo": { "lang": "en", "label": "English", "title": "Read in English" },
+    "script": {
+      "minRead": "読了まで約{n}分",
+      "minLeft": "残り約{n}分",
+      "finished": "読了",
+      "copyLink": "引用へのリンクをコピー",
+      "shareLink": "引用へのリンクを共有",
+      "copied": "リンクをコピーしました",
+      "copyFailed": "コピーできませんでした",
+      "toReferences": "参考文献へ ↓",
+      "toDark": "ダークモードに切り替える",
+      "toLight": "ライトモードに切り替える"
+    }
+  }
+}

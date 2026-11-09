@@ -4,10 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "og": "node og.mjs"
+    "og": "node og.mjs",
+    "fonts": "node fonts.mjs"
   },
   "dependencies": {
+    "budoux": "^0.10.2",
     "marked": "^18.1.1",
     "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "subset-font": "^2.9.0"
   }
 }

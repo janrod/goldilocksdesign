@@ -5,9 +5,12 @@
   const totalMinutes = Number(article.dataset.minutes);
   const wide = matchMedia('(min-width: 1100px)');
   const coarse = matchMedia('(pointer: coarse)');
+  // Interface text for this edition (site/strings.json).
+  const T = JSON.parse(document.getElementById('strings').textContent);
+  const lang = document.documentElement.lang;
 
   // GoatCounter events (no-op until its script has loaded, and on localhost).
-  const track = (path, title) => window.goatcounter?.count?.({ path, title, event: true });
+  const track = (path, title) => window.goatcounter?.count?.({ path: T.track + path, title, event: true });
 
   let lastPointer = 'mouse';
   addEventListener('pointerdown', (e) => { lastPointer = e.pointerType; }, true);
@@ -24,6 +27,7 @@
   const tocLinks = [...toc.querySelectorAll('a')];
   const headings = tocLinks.map((a) => document.getElementById(a.hash.slice(1)));
   let pillTimer;
+  let current = -1; // the section being read
 
   // A quote's slot in the text is sized for the quote at full size inside
   // its frame, so nothing around it ever moves or gets covered. Its line
@@ -44,7 +48,10 @@
     q.frame.style.strokeDasharray = leaving ? `0 ${1 - f} ${f} 1` : `${f} 1`;
   }
 
-  // Split a laid-out paragraph into the lines the browser chose.
+  // Split a laid-out paragraph into the lines the browser chose, by finding
+  // the characters that start a new line. (Character by character, since
+  // Japanese has no spaces; its quotes may only wrap at the zero-width
+  // spaces the build puts between phrases.)
   function lineBreaks(p) {
     const node = p.firstChild;
     const text = node.data;
@@ -52,7 +59,7 @@
     const lines = [];
     let lineStart = 0;
     let lastTop = null;
-    for (const m of text.matchAll(/\S+/g)) {
+    for (const m of text.matchAll(/[^\s\u200B]/g)) {
       range.setStart(node, m.index);
       range.setEnd(node, m.index + 1);
       const top = range.getBoundingClientRect().top;
@@ -124,9 +131,9 @@
   });
 
   function timeLeft(f) {
-    if (f <= 0) return `${totalMinutes} min read`;
-    if (f >= 1) return 'Finished';
-    return `${Math.max(1, Math.ceil((1 - f) * totalMinutes))} min left`;
+    if (f <= 0) return T.minRead.replace('{n}', totalMinutes);
+    if (f >= 1) return T.finished;
+    return T.minLeft.replace('{n}', Math.max(1, Math.ceil((1 - f) * totalMinutes)));
   }
 
   function onScroll() {
@@ -160,7 +167,7 @@
     }
 
     toc.classList.toggle('is-visible', header.getBoundingClientRect().bottom < 0);
-    let current = -1;
+    current = -1;
     headings.forEach((h, i) => { if (h.getBoundingClientRect().top < innerHeight * 0.35) current = i; });
     tocLinks.forEach((a, i) => {
       if (i === current) a.setAttribute('aria-current', 'true');
@@ -211,8 +218,8 @@
     popFor?.removeAttribute('aria-describedby');
     popFor = a;
     a.setAttribute('aria-describedby', pop.id);
-    pop.innerHTML = `<span class="ref-pop-num">${a.dataset.ref}</span>${li.innerHTML}` +
-      (lastPointer === 'mouse' ? '' : `<a class="ref-pop-jump" href="${a.hash}">Go to references ↓</a>`);
+    pop.innerHTML = `<span class="ref-pop-num">${a.dataset.ref}</span><span lang="${li.closest('[lang]').lang}">${li.innerHTML}</span>` +
+      (lastPointer === 'mouse' ? '' : `<a class="ref-pop-jump" href="${a.hash}">${T.toReferences}</a>`);
     pop.hidden = false;
 
     const r = a.getBoundingClientRect();
@@ -283,8 +290,13 @@
 
   const encode = (s) => encodeURIComponent(s).replace(/-/g, '%2D');
   const isWordChar = (c) => /[\p{L}\p{N}]/u.test(c || '');
+  // Japanese has no spaces between words, so find them with a segmenter.
+  const segmenter = lang === 'ja' && Intl.Segmenter ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+  const atWordEdge = (node, offset) => node.nodeType !== 3 || offset === 0 || offset === node.data.length ||
+    [...segmenter.segment(node.data)].some((s) => s.index === offset);
 
   function fragmentFor(range) {
+    if (lang === 'ja') return segmenter ? fragmentForJapanese(range) : null;
     let words = range.toString().replace(/\s+/g, ' ').trim().split(' ');
     // Text fragments only match whole words, so drop words the selection cuts in half.
     const { startContainer: sc, startOffset: so, endContainer: ec, endOffset: eo } = range;
@@ -295,6 +307,25 @@
     const frag = words.length <= 8
       ? encode(text)
       : `${encode(words.slice(0, 4).join(' '))},${encode(words.slice(-4).join(' '))}`;
+    return { url: `${location.origin}${location.pathname}#:~:text=${frag}`, text };
+  }
+
+  // The same for Japanese: whole words, and for a long passage its first and
+  // last few words.
+  function fragmentForJapanese(range) {
+    const words = [...segmenter.segment(range.toString().replace(/[\s\u200B]+/g, ''))].map((s) => s.segment);
+    if (!atWordEdge(range.startContainer, range.startOffset)) words.shift();
+    if (!atWordEdge(range.endContainer, range.endOffset)) words.pop();
+    const text = words.join('');
+    if (text.length < 6) return null;
+    let frag = encode(text);
+    if (text.length > 24) {
+      let start = '';
+      let end = '';
+      for (const w of words) { if (start.length >= 8) break; start += w; }
+      for (const w of [...words].reverse()) { if (end.length >= 8) break; end = w + end; }
+      frag = `${encode(start)},${encode(end)}`;
+    }
     return { url: `${location.origin}${location.pathname}#:~:text=${frag}`, text };
   }
 
@@ -311,7 +342,7 @@
     if (!frag) { shareBtn.hidden = true; return; }
     ({ url: shareUrl, text: shareText } = frag);
 
-    shareBtn.textContent = coarse.matches && navigator.share ? 'Share link to quote' : 'Copy link to quote';
+    shareBtn.textContent = coarse.matches && navigator.share ? T.shareLink : T.copyLink;
     shareBtn.hidden = false;
     const rects = range.getClientRects();
     const first = rects[0];
@@ -351,17 +382,17 @@
   shareBtn.addEventListener('click', async () => {
     try {
       if (coarse.matches && navigator.share) {
-        await navigator.share({ url: shareUrl, text: `“${shareText}”` });
+        await navigator.share({ url: shareUrl, text: lang === 'ja' ? `「${shareText}」` : `“${shareText}”` });
         track('quote-shared', 'Shared a quote link');
         shareBtn.hidden = true;
         return;
       }
       holdLabelUntil = Date.now() + 1300;
       await copyText(shareUrl);
-      shareBtn.textContent = 'Link copied';
+      shareBtn.textContent = T.copied;
       track('quote-copied', 'Copied a quote link');
     } catch {
-      shareBtn.textContent = 'Couldn’t copy';
+      shareBtn.textContent = T.copyFailed;
     }
     setTimeout(() => { shareBtn.hidden = true; }, 1200);
   });
@@ -378,7 +409,7 @@
   const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : systemDark.matches);
   function showTheme() {
     root.classList.toggle('theme-is-dark', isDark());
-    toggle.setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode');
+    toggle.setAttribute('aria-label', isDark() ? T.toLight : T.toDark);
   }
   showTheme();
   systemDark.addEventListener('change', showTheme);
@@ -407,6 +438,18 @@
         { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
       );
     });
+  });
+
+  // ---- Language switch ----
+  // The choice is remembered (the English page otherwise follows the
+  // browser's language; see the template), and the other edition opens at
+  // the section being read, since all editions share section ids.
+
+  const langSwitch = document.querySelector('.lang-switch');
+  langSwitch.addEventListener('click', () => {
+    try { localStorage.setItem('lang', langSwitch.hreflang); } catch {}
+    langSwitch.hash = current >= 0 && header.getBoundingClientRect().bottom < 0 ? headings[current].id : '';
+    track(`language-${langSwitch.hreflang}`, `Switched to ${langSwitch.hreflang}`);
   });
 
   // ---- Print ----

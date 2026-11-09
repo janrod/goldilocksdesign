@@ -1,0 +1,47 @@
+{
+  "heider-simmel": {
+    "src": "images/heider-simmel-1944.webp",
+    "near": "画面の上を動くただの図形",
+    "place": "after",
+    "caption": "フリッツ・ハイダーとマリアンネ・ジンメルによる1944年の映像の一コマ。何が見えたかを尋ねられると、観た人のほぼ全員が、三角形や円を、動機をもつ登場人物として語った[14]。",
+    "credit": "映像：Heider and Simmel, 1944（<a href=\"https://archive.org/details/heider-simmel\">Internet Archive</a>経由）",
+    "alt": "粒子の粗い映像の一コマ。白地に黒い線で、大きな三角形、小さな三角形、小さな円が、扉の開閉する箱のそばに描かれている。"
+  },
+  "xerox-star": {
+    "src": "images/xerox-star-desktop.webp",
+    "near": "ゼロックスのStarは",
+    "place": "before",
+    "caption": "ゼロックスStar 8010のデスクトップ（1981年）。書類、フォルダ、プリンタ、受信箱と送信箱が並ぶ[35]。",
+    "credit": "写真：<a href=\"https://www.flickr.com/photos/103707855@N05/16453502195/\">J R</a>、<a href=\"https://creativecommons.org/licenses/by/2.0/\">CC BY 2.0</a>（<a href=\"https://commons.wikimedia.org/wiki/File:Desktop_icons_for_Xerox_Star_8010.jpg\">Wikimedia Commons</a>経由）",
+    "alt": "ゼロックスStarの白黒のデスクトップ画面。点描の背景に、フォルダ、書類、予定表、プリンタ、受信箱と送信箱のアイコンが並ぶ。"
+  },
+  "shrdlu": {
+    "src": "images/shrdlu-blocks-world.webp",
+    "near": "SHRDLUの開発者である",
+    "place": "after",
+    "caption": "SHRDLUの積み木の世界。「大きな赤いブロックを持ち上げて」という命令を受けた場面。ウィノグラードによる1971年のMIT技術報告書より。",
+    "credit": "Terry Winograd, <i>Procedures as a Representation for Data in a Computer Program for Understanding Natural Language</i>, MIT AI Technical Report 235, 1971, fig. 4（<a href=\"https://archive.org/details/DTIC_AD0721399\">DTIC / Internet Archive</a>経由）",
+    "alt": "机の上にブロック、ピラミッド、開いた箱が置かれ、赤・緑・青のラベルがついた線画。上からロボットの手が下がっている。上部に手書きで「Pick up a big red block.」とある。"
+  },
+  "image2": {
+    "caption": "ヴィンツェント・プラッキウス『De arte excerpendi（抜き書きの技法について）』（1689年）に版画で描かれた学問の箱舟[29]。",
+    "credit": "*GC6.P6904.689d、<a href=\"https://commons.wikimedia.org/wiki/File:Houghton_GC6.P6904.689d_-_Placcius,_154.jpg\">ハーバード大学ホートン図書館</a>、パブリックドメイン",
+    "alt": "プラッキウスの学問の箱舟の版画。扉の開いた戸棚の内側にフックが何列も並び、ラベルのついた紙片が掛かっている。下部には引き出しがある。"
+  },
+  "placcius-slips": {
+    "src": "images/placcius-slips.webp",
+    "near": "機械は道具のままにとどまり",
+    "place": "after",
+    "caption": "箱舟の細部。アルファベットの見出しの下に並ぶフックから、抜き書きの紙片が下がっている[29]。",
+    "credit": "*GC6.P6904.689d、<a href=\"https://nrs.harvard.edu/urn-3:FHCL.HOUGH:10482607\">ハーバード大学ホートン図書館</a>、パブリックドメイン",
+    "alt": "版画の拡大図。FからMまでの文字の下に縦のレールが走り、何列も並ぶフックのいくつかに紙片が掛かっている。"
+  },
+  "apollo9-checklist": {
+    "src": "images/apollo9-checklist.webp",
+    "near": "コックピットのチェックリストも",
+    "place": "after",
+    "caption": "アポロ9号の月着陸船チェックリストの見開き。1969年に実際に宇宙を飛び、乗組員の署名が入っている。差し替えられた手順には大きく×印が引かれ、「MSFNにバッテリー電圧を報告」の下には測定値が手書きで記されている。",
+    "credit": "NASA、写真：<a href=\"https://www.flickr.com/photos/49487266@N07/46380890834/\">San Diego Air &amp; Space Museum Archives</a>、既知の著作権制限なし（<a href=\"https://commons.wikimedia.org/wiki/File:Apollo_9_lunar_module_checklist_-_46380890834.jpg\">Wikimedia Commons</a>経由）",
+    "alt": "タイプ打ちのチェックリストを綴じたリングバインダー。左ページの「上昇段バッテリーの起動と点検」には大きな×印。右ページでは改訂された手順の末尾に、手書きのバッテリー測定値36.8と37.5、そして「Busses 29.0 VDC on asc batts」というメモがある。"
+  }
+}

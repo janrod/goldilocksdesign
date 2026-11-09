@@ -12,6 +12,25 @@
   font-style: italic;
   font-display: swap;
 }
+/* Japanese: Noto Serif JP, the Japanese release of Source Han Serif, which
+   Adobe designed as Source Serif's CJK companion. It is subset to the
+   characters the Japanese edition uses (npm run fonts) and holds no Latin, so
+   Latin letters and figures still come from Source Serif 4. The UI file
+   carries only the English page's “日本語” switch. */
+@font-face {
+  font-family: "Noto Serif JP GD";
+  src: url("fonts/noto-serif-jp.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Serif JP UI";
+  src: url("fonts/noto-serif-jp-ui.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --bg: #fbfbfb;
@@ -443,11 +462,25 @@ article > ul li::marker { color: var(--muted); }
   transform: scaleX(0);
 }
 
-.time-pill {
+/* Top-right controls: the theme switch in the corner, the language switch
+   under it, and the time left (while scrolling) to the theme switch's left. */
+.controls {
   position: fixed;
-  top: 0.95rem;
-  right: 3.6rem;
-  z-index: 40;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.controls .time-pill {
+  position: absolute;
+  top: 0.25rem;
+  right: calc(2.1rem + 0.5rem);
+  white-space: nowrap;
+}
+.time-pill {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
   background: var(--surface);
@@ -463,12 +496,28 @@ article > ul li::marker { color: var(--muted); }
 }
 .time-pill.is-visible { opacity: 1; transform: none; }
 
+/* Language switch: names the other edition, in its own language. */
+.lang-switch {
+  display: grid;
+  place-items: center;
+  height: 2.1rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.lang-switch:hover { color: var(--text); border-color: var(--muted); }
+.lang-switch:lang(ja) { font-family: "Noto Serif JP UI", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif; }
+
 /* Light / dark switch */
 .theme-toggle {
-  position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  z-index: 41;
   display: grid;
   place-items: center;
   width: 2.1rem;
@@ -588,6 +637,48 @@ footer::before {
 }
 .print-btn:hover { color: var(--accent); }
 
+/* ---- Japanese edition ----
+   Body text in Noto Serif JP with Latin from Source Serif 4, set a little
+   smaller (CJK glyphs fill the em) and looser, with strict line-breaking
+   rules (kinsoku). Not justified: browsers justify Japanese by spacing out
+   every character, which shows on lines holding a long Latin word, and
+   full-width characters keep the right edge nearly even anyway. Japanese has no italics, so what is italic
+   in English is upright here. Headings, the table of contents and pull
+   quotes wrap only between phrases (marked by the build with BudouX). */
+html:lang(ja) body {
+  font-family: "Noto Serif JP GD", "Source Serif 4", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+  font-feature-settings: "kern", "liga", "lnum";
+  line-break: strict;
+  text-spacing-trim: trim-start;
+  text-autospace: normal;
+}
+html:lang(ja) article { font-size: 0.9rem; line-height: 1.95; letter-spacing: 0.02em; }
+html:lang(ja) article > p { hanging-punctuation: allow-end; }
+html:lang(ja) .preamble { font-size: 0.9rem; line-height: 1.8; letter-spacing: 0.02em; }
+html:lang(ja) h1,
+html:lang(ja) h2,
+html:lang(ja) .subtitle,
+html:lang(ja) .toc a,
+html:lang(ja) .pullquote p {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  font-feature-settings: "palt", "lnum";
+}
+html:lang(ja) h1 { font-size: clamp(1.8rem, 1.3rem + 2.2vw, 2.5rem); line-height: 1.3; letter-spacing: 0.03em; }
+html:lang(ja) h2 { font-size: 1.35rem; line-height: 1.5; letter-spacing: 0.04em; }
+html:lang(ja) .subtitle { font-style: normal; font-size: 1.1rem; letter-spacing: 0.04em; }
+html:lang(ja) .byline,
+html:lang(ja) figcaption,
+html:lang(ja) .endnote,
+html:lang(ja) .toc { letter-spacing: 0.02em; }
+html:lang(ja) .pullquote p { font-style: normal; line-height: 1.55; letter-spacing: 0.04em; }
+html:lang(ja) article > ul li { margin-bottom: 0.8rem; }
+html:lang(ja) em { font-style: normal; }
+/* English inside the Japanese page (references, margin notes, the
+   citation card) is set as in the English edition. */
+html:lang(ja) [lang="en"] { letter-spacing: 0; text-align: left; line-break: auto; }
+html:lang(ja) [lang="en"] em { font-style: italic; }
+
 @media print {
   :root {
     --bg: #fff;
@@ -599,7 +690,7 @@ footer::before {
   @page { margin: 2cm 2.2cm; }
   html { font-size: 11pt; }
   body { line-height: 1.5; }
-  .progress, .time-pill, .theme-toggle, .toc, .ref-pop, .share-btn, .sidenote, .pullquote, footer { display: none !important; }
+  .progress, .controls, .toc, .ref-pop, .share-btn, .sidenote, .pullquote, footer { display: none !important; }
   .col { max-width: none; padding: 0; }
   main { padding: 0; }
   header { margin-bottom: 1.5rem; padding-bottom: 1rem; }
